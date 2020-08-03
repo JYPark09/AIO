@@ -38,6 +38,7 @@ namespace ColorUtil
 }  // namespace ColorUtil
 
 using Point = int;
+constexpr Point PASS = BOARD_SIZE;
 constexpr std::array<int, 8> Dirs = {
     1,
     -static_cast<int>(EXTENDED_BOARD_WIDTH) + 1,

@@ -140,12 +140,12 @@ const std::vector<BoardPlane>& Board::GetPlaneHistory() const noexcept
 
 void Board::Play(Point pt)
 {
-    planeHistory_.push_back(board_);
     board_[pt] = current_;
 
     flipStones(pt, current_);
 
     history_.emplace_back(pt);
+    planeHistory_.push_back(board_);
     current_ = ColorUtil::Opponent(current_);
 }
 
