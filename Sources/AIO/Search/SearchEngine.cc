@@ -1,3 +1,4 @@
+// ReSharper disable All
 #include <AIO/Search/SearchEngine.hpp>
 
 #include <AIO/Network/FakeNetwork.hpp>
@@ -24,6 +25,8 @@ SearchEngine::SearchEngine(SearchOptions option)
         searchThreads_.emplace_back(&SearchEngine::searchThread, this,
                                     threadId);
     }
+
+    Clear();
 }
 
 SearchEngine::~SearchEngine()
@@ -37,6 +40,11 @@ SearchEngine::~SearchEngine()
     for (auto& t : evalThreads_)
         if (t.joinable())
             t.join();
+}
+
+void SearchEngine::Clear()
+{
+    root_ = new TreeNode;
 }
 
 void SearchEngine::Search()
@@ -92,6 +100,14 @@ const TreeNode* SearchEngine::getBestNode() const
 
 void SearchEngine::initRoot()
 {
+    if (root_->state == ExpandState::UNEXPANDED)
+    {
+        Network::Tensor policy;
+        [[maybe_unused]] float value;
+        evaluate(mainBoard_, policy, value);
+
+        root_->Expand(mainBoard_, policy);
+    }
 }
 
 void SearchEngine::evaluate(const Game::Board& state, Network::Tensor& policy,
@@ -159,6 +175,7 @@ void SearchEngine::evalThread(int threadId,
     spdlog::info("[eval thread {}] shutdown", threadId);
 }
 
+// ReSharper disable once CppInconsistentNaming
 void SearchEngine::searchThread(int threadId)
 {
     networkBarrier_.Wait();

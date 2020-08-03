@@ -29,6 +29,7 @@ class SearchEngine final
     SearchEngine(SearchOptions option);
     ~SearchEngine();
 
+    void Clear();
     void Search();
     void Play(Game::Point pt);
 

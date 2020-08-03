@@ -62,6 +62,13 @@ namespace PointUtil
              pt / static_cast<int>(EXTENDED_BOARD_WIDTH) };
 }
 
+[[nodiscard]] constexpr Point UnextendedPt(Point pt)
+{
+    auto [x, y] = Point2XY(pt);
+
+    return (x - 1) + (y - 1) * BOARD_WIDTH;
+}
+
 [[nodiscard]] std::string PointStr(Point pt);
 [[nodiscard]] std::string PointStr(int x, int y);
 [[nodiscard]] Point Str2Point(std::string str);
