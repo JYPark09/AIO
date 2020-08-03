@@ -1,6 +1,7 @@
 #ifndef AIO_BOARD_DEF_HPP
 #define AIO_BOARD_DEF_HPP
 
+#include <array>
 #include <cstddef>
 #include <string>
 #include <tuple>
@@ -11,6 +12,11 @@ constexpr std::size_t BOARD_WIDTH = 8;
 constexpr std::size_t BOARD_HEIGHT = 8;
 constexpr std::size_t BOARD_SIZE = BOARD_HEIGHT * BOARD_WIDTH;
 
+constexpr std::size_t EXTENDED_BOARD_WIDTH = BOARD_WIDTH + 2;
+constexpr std::size_t EXTENDED_BOARD_HEIGHT = BOARD_HEIGHT + 2;
+constexpr std::size_t EXTENDED_BOARD_SIZE =
+    EXTENDED_BOARD_HEIGHT * EXTENDED_BOARD_WIDTH;
+
 using StoneColor = int;
 constexpr StoneColor P_BLACK = -1;
 constexpr StoneColor P_NONE = 0;
@@ -19,18 +25,45 @@ constexpr StoneColor P_INVALID = -100;
 
 namespace ColorUtil
 {
-constexpr StoneColor Opponent(StoneColor color);
+constexpr StoneColor Opponent(StoneColor color)
+{
+    if (color == P_INVALID || color == P_NONE)
+        return P_INVALID;
+
+    return -1 * color;
+}
+
 std::string ColorStr(StoneColor color);
+StoneColor Str2Color(std::string str);
 }  // namespace ColorUtil
 
 using Point = int;
-constexpr Point PASS = BOARD_SIZE;
+constexpr std::array<int, 8> Dirs = {
+    1,
+    -static_cast<int>(EXTENDED_BOARD_WIDTH) + 1,
+    -static_cast<int>(EXTENDED_BOARD_WIDTH),
+    -static_cast<int>(EXTENDED_BOARD_WIDTH) - 1,
+    -1,
+    static_cast<int>(EXTENDED_BOARD_WIDTH) - 1,
+    static_cast<int>(EXTENDED_BOARD_WIDTH),
+    static_cast<int>(EXTENDED_BOARD_WIDTH) + 1
+};
 namespace PointUtil
 {
-constexpr Point XY2Point(int x, int y);
-constexpr std::tuple<int, int> Point2XY(Point pt);
+constexpr Point XY2Point(int x, int y)
+{
+    return x + y * EXTENDED_BOARD_WIDTH;
+}
+
+constexpr std::tuple<int, int> Point2XY(Point pt)
+{
+    return { pt % static_cast<int>(EXTENDED_BOARD_WIDTH),
+             pt / static_cast<int>(EXTENDED_BOARD_WIDTH) };
+}
+
 std::string PointStr(Point pt);
 std::string PointStr(int x, int y);
+Point Str2Point(std::string str);
 }  // namespace PointUtil
 }  // namespace AIO::Game
 

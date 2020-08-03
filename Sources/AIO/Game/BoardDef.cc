@@ -1,19 +1,12 @@
 #include <AIO/Game/BoardDef.hpp>
 
+#include <algorithm>
 #include <sstream>
 
 namespace AIO::Game
 {
 namespace ColorUtil
 {
-constexpr StoneColor Opponent(StoneColor color)
-{
-    if (color == P_INVALID || color == P_NONE)
-        return P_INVALID;
-
-    return -1 * color;
-}
-
 std::string ColorStr(StoneColor color)
 {
     using namespace std::string_literals;
@@ -31,21 +24,28 @@ std::string ColorStr(StoneColor color)
             return "INVALID"s;
     }
 }
+
+StoneColor Str2Color(std::string str)
+{
+    using namespace std::string_literals;
+
+    std::transform(str.begin(), str.end(), str.begin(), std::toupper);
+
+    if (str == "B"s || str == "BLACK"s)
+        return P_BLACK;
+
+    if (str == "W"s || str == "WHITE"s)
+        return P_WHITE;
+
+    if (str == "NONE"s)
+        return P_NONE;
+
+    return P_INVALID;
+}
 }  // namespace ColorUtil
 
 namespace PointUtil
 {
-constexpr Point XY2Point(int x, int y)
-{
-    return x + y * BOARD_WIDTH;
-}
-
-constexpr std::tuple<int, int> Point2XY(Point idx)
-{
-    return { idx % static_cast<int>(BOARD_WIDTH),
-             idx / static_cast<int>(BOARD_WIDTH) };
-}
-
 std::string PointStr(Point pt)
 {
     auto [x, y] = Point2XY(pt);
@@ -55,7 +55,7 @@ std::string PointStr(Point pt)
 
 std::string PointStr(int x, int y)
 {
-    static const char* ColStrs = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+    static const char* ColStrs = " ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
     std::stringstream ss;
 
@@ -63,6 +63,18 @@ std::string PointStr(int x, int y)
     ss << y;
 
     return ss.str();
+}
+
+Point Str2Point(std::string str)
+{
+    using namespace std::string_literals;
+
+    std::transform(str.begin(), str.end(), str.begin(), std::toupper);
+
+    const int x = str[0] - 'A';
+    const int y = std::stoi(str.substr((1)));
+
+    return XY2Point(x + 1, y);
 }
 }  // namespace PointUtil
 }  // namespace AIO::Game
