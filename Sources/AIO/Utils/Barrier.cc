@@ -2,9 +2,9 @@
 
 namespace AIO::Utils
 {
-Barrier::Barrier(std::size_t count) : count_(count)
+void Barrier::Init(std::size_t count)
 {
-    // Do nothing
+    count_ = count;
 }
 
 void Barrier::Done()

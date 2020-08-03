@@ -17,6 +17,9 @@ enum class ExpandState
 
 struct TreeNode final
 {
+    TreeNode() noexcept = default;
+    TreeNode(TreeNode&& other) noexcept;
+
     std::atomic<ExpandState> state{ ExpandState::UNEXPANDED };
 
     Game::Point action{ Game::PASS };
