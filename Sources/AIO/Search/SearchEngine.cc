@@ -48,11 +48,6 @@ SearchEngine::~SearchEngine()
             t.join();
 }
 
-void SearchEngine::Clear()
-{
-    root_ = new TreeNode;
-}
-
 void SearchEngine::Search()
 {
 }
