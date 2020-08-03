@@ -23,13 +23,14 @@ constexpr StoneColor Opponent(StoneColor color);
 std::string ColorStr(StoneColor color);
 }  // namespace ColorUtil
 
-constexpr std::size_t PASS = BOARD_SIZE;
+using Point = int;
+constexpr Point PASS = BOARD_SIZE;
 namespace PointUtil
 {
-constexpr std::size_t Pt2Idx(std::size_t x, std::size_t y);
-constexpr std::tuple<std::size_t, std::size_t> Idx2Pt(std::size_t idx);
-std::string PointStr(std::size_t idx);
-std::string PointStr(std::size_t x, std::size_t y);
+constexpr Point XY2Point(int x, int y);
+constexpr std::tuple<int, int> Point2XY(Point pt);
+std::string PointStr(Point pt);
+std::string PointStr(int x, int y);
 }  // namespace PointUtil
 }  // namespace AIO::Game
 

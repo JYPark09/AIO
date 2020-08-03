@@ -35,24 +35,25 @@ std::string ColorStr(StoneColor color)
 
 namespace PointUtil
 {
-constexpr std::size_t Pt2Idx(std::size_t x, std::size_t y)
+constexpr Point XY2Point(int x, int y)
 {
     return x + y * BOARD_WIDTH;
 }
 
-constexpr std::tuple<std::size_t, std::size_t> Idx2Pt(std::size_t idx)
+constexpr std::tuple<int, int> Point2XY(Point idx)
 {
-    return { idx % BOARD_WIDTH, idx / BOARD_WIDTH };
+    return { idx % static_cast<int>(BOARD_WIDTH),
+             idx / static_cast<int>(BOARD_WIDTH) };
 }
 
-std::string PointStr(std::size_t idx)
+std::string PointStr(Point pt)
 {
-    auto [x, y] = Idx2Pt(idx);
+    auto [x, y] = Point2XY(pt);
 
     return PointStr(x, y);
 }
 
-std::string PointStr(std::size_t x, std::size_t y)
+std::string PointStr(int x, int y)
 {
     static const char* ColStrs = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
