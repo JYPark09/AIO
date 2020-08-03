@@ -38,7 +38,7 @@ class SearchManager final
 
     SearchState state_{ SearchState::PAUSE };
 
-    Utils::Barrier* pauseBarrier_{ nullptr };
+    Utils::Barrier pauseBarrier_;
 };
 }  // namespace AIO::Search
 

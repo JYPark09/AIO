@@ -10,15 +10,14 @@ namespace AIO::Utils
 class Barrier final
 {
  public:
-    explicit Barrier(std::size_t count);
-
+    void Init(std::size_t count);
     void Done();
     void Wait();
 
  private:
     std::mutex mutex_;
     std::condition_variable cv_;
-    std::size_t count_;
+    std::size_t count_{ 0 };
 };
 }  // namespace AIO::Utils
 

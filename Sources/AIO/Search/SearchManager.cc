@@ -12,21 +12,16 @@ void SearchManager::Pause()
     {
         std::lock_guard<std::mutex> lock(mutex_);
 
-        pauseBarrier_ = new Utils::Barrier(threadNum_);
-
         state_ = SearchState::PAUSE;
     }
 
     cv_.notify_all();
-    pauseBarrier_->Wait();
-
-    delete pauseBarrier_;
-    pauseBarrier_ = nullptr;
+    pauseBarrier_.Wait();
 }
 
 void SearchManager::AckPause()
 {
-    pauseBarrier_->Done();
+    pauseBarrier_.Done();
 }
 
 void SearchManager::Resume()
@@ -38,6 +33,8 @@ void SearchManager::Resume()
             return;
 
         state_ = SearchState::SEARCHING;
+
+        pauseBarrier_.Init(threadNum_);
     }
 
     cv_.notify_all();

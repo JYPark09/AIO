@@ -7,8 +7,9 @@
 namespace AIO::Search
 {
 SearchEngine::SearchEngine(SearchOptions option)
-    : option_(option), networkBarrier_(option.NumEvalThreads)
+    : option_(option), manager_(option.NumSearchThreads)
 {
+    networkBarrier_.Init(option_.NumEvalThreads);
     for (int threadId = 0; threadId < option_.NumEvalThreads; ++threadId)
     {
         std::unique_ptr<Network::Network> network;
@@ -24,10 +25,17 @@ SearchEngine::SearchEngine(SearchOptions option)
         searchThreads_.emplace_back(&SearchEngine::searchThread, this,
                                     threadId);
     }
+
+    networkBarrier_.Wait();
+
+    updateRoot(nullptr);
+
+    spdlog::info("search engine initialize done");
 }
 
 SearchEngine::~SearchEngine()
 {
+    manager_.Terminate();
     for (auto& t : searchThreads_)
         if (t.joinable())
             t.join();
@@ -90,6 +98,27 @@ const TreeNode* SearchEngine::getBestNode() const
     return bestChild;
 }
 
+void SearchEngine::updateRoot(TreeNode* newNode)
+{
+    TreeNode* node;
+    if (newNode == nullptr)
+    {
+        node = new TreeNode;
+        node->color = mainBoard_.Opponent();
+    }
+    else
+    {
+        node = new TreeNode(std::move(*newNode));
+
+        for (TreeNode* tempNowNode = node->mostLeftChildNode;
+             tempNowNode != nullptr;
+             tempNowNode = tempNowNode->rightSiblingNode)
+            node->parentNode = node;
+    }
+
+    root_ = node;
+}
+
 void SearchEngine::initRoot()
 {
 }
@@ -144,6 +173,9 @@ void SearchEngine::evalThread(int threadId,
             }
         }
 
+        if (batchSize == 0)
+            continue;
+
         std::vector<Network::Tensor> policy(batchSize);
         Network::Tensor value(batchSize);
 
@@ -161,8 +193,28 @@ void SearchEngine::evalThread(int threadId,
 
 void SearchEngine::searchThread(int threadId)
 {
-    networkBarrier_.Wait();
+    if (!manager_.WaitResume())
+    {
+        spdlog::info("[search thread {}] shutdown", threadId);
+        return;
+    }
+
     spdlog::info("[search thread {}] start searching loop", threadId);
+
+    while (true)
+    {
+        if (manager_.GetState() != SearchState::SEARCHING)
+        {
+            manager_.AckPause();
+            if (!manager_.WaitResume())
+            {
+                break;
+            }
+        }
+
+        // Searching routine
+        // TODO: Implement this
+    }
 
     spdlog::info("[search thread {}] shutdown", threadId);
 }

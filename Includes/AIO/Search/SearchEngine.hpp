@@ -4,6 +4,7 @@
 #include <AIO/Game/Board.hpp>
 #include <AIO/Network/Network.hpp>
 #include <AIO/Search/SearchOptions.hpp>
+#include <AIO/Search/SearchManager.hpp>
 #include <AIO/Search/TreeNode.hpp>
 #include <AIO/Utils/Barrier.hpp>
 
@@ -39,6 +40,7 @@ class SearchEngine final
     [[nodiscard]] TreeNode* getBestNode();
     [[nodiscard]] const TreeNode* getBestNode() const;
 
+    void updateRoot(TreeNode* newNode);
     void initRoot();
 
     void evaluate(const Game::Board& state, Network::Tensor& policy,
@@ -64,6 +66,7 @@ class SearchEngine final
 
     // thread controls
     bool runningEvalThread_{ true };
+    SearchManager manager_;
 };
 }  // namespace AIO::Search
 
