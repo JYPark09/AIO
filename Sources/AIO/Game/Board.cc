@@ -110,6 +110,24 @@ int Board::Score() const noexcept
     return std::accumulate(board_.begin(), board_.end(), 0);
 }
 
+std::vector<Point> Board::ValidMoves() const
+{
+    std::vector<Point> ret;
+
+    for (int x = 1; x <= BOARD_WIDTH; ++x)
+    {
+        for (int y = 1; y <= BOARD_HEIGHT; ++y)
+        {
+            const auto pt = PointUtil::XY2Point(x, y);
+
+            if (IsValid(pt, current_))
+                ret.emplace_back(pt);
+        }
+    }
+
+    return ret;
+}
+
 const std::vector<Point>& Board::GetHistory() const noexcept
 {
     return history_;

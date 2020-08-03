@@ -27,9 +27,10 @@ class Board final
     [[nodiscard]] StoneColor Current() const noexcept;
     [[nodiscard]] StoneColor Opponent() const noexcept;
     [[nodiscard]] int Score() const noexcept;
+    [[nodiscard]] std::vector<Point> ValidMoves() const;
 
-    const std::vector<Point>& GetHistory() const noexcept;
-    const std::vector<BoardPlane>& GetPlaneHistory() const noexcept;
+    [[nodiscard]] const std::vector<Point>& GetHistory() const noexcept;
+    [[nodiscard]]const std::vector<BoardPlane>& GetPlaneHistory() const noexcept;
 
     void Play(Point pt);
     void Play(int x, int y);
