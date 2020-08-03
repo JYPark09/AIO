@@ -30,7 +30,6 @@ class SearchEngine final
     SearchEngine(SearchOptions option);
     ~SearchEngine();
 
-    void Clear();
     void Search();
     void Play(Game::Point pt);
 
@@ -46,9 +45,11 @@ class SearchEngine final
 
     void evaluate(const Game::Board& state, Network::Tensor& policy,
                   float& value);
+    void enqDelete(TreeNode* node);
 
     void evalThread(int threadId, std::unique_ptr<Network::Network> network);
     void searchThread(int threadId);
+    void deleteThread();
 
  private:
     SearchOptions option_;
@@ -63,10 +64,16 @@ class SearchEngine final
     std::deque<EvalTask> evalTasks_;
     std::mutex evalMutex_;
     std::vector<std::thread> evalThreads_;
+
     std::vector<std::thread> searchThreads_;
+
+    std::deque<TreeNode*> deleteTasks_;
+    std::mutex deleteMutex_;
+    std::thread deleteThread_;
 
     // thread controls
     bool runningEvalThread_{ true };
+    bool runningDeleteThread_{ true };
     SearchManager manager_;
 };
 }  // namespace AIO::Search

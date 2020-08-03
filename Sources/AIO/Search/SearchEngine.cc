@@ -27,6 +27,8 @@ SearchEngine::SearchEngine(SearchOptions option)
                                     threadId);
     }
 
+    deleteThread_ = std::thread(&SearchEngine::deleteThread, this);
+
     networkBarrier_.Wait();
 
     updateRoot(nullptr);
@@ -42,10 +44,13 @@ SearchEngine::~SearchEngine()
             t.join();
 
     runningEvalThread_ = false;
-
     for (auto& t : evalThreads_)
         if (t.joinable())
             t.join();
+
+    runningDeleteThread_ = false;
+    if (deleteThread_.joinable())
+        deleteThread_.join();
 }
 
 void SearchEngine::Search()
@@ -117,6 +122,9 @@ void SearchEngine::updateRoot(TreeNode* newNode)
             node->parentNode = node;
     }
 
+    if (root_ != nullptr)
+        enqDelete(root_);
+
     root_ = node;
 }
 
@@ -151,14 +159,21 @@ void SearchEngine::evaluate(const Game::Board& state, Network::Tensor& policy,
     value = predValue;
 }
 
+void SearchEngine::enqDelete(TreeNode* node)
+{
+    std::lock_guard<std::mutex> lock(deleteMutex_);
+
+    deleteTasks_.emplace_back(node);
+}
+
 void SearchEngine::evalThread(int threadId,
                               std::unique_ptr<Network::Network> network)
 {
     spdlog::info("[eval thread {}] initialize start", threadId);
     network->Initialize(option_.WeightFileName);
 
-    networkBarrier_.Done();
     spdlog::info("[eval thread {}] initialize ended", threadId);
+    networkBarrier_.Done();
 
     while (runningEvalThread_)
     {
@@ -193,7 +208,7 @@ void SearchEngine::evalThread(int threadId,
         for (std::size_t batch = 0; batch < batchSize; ++batch)
         {
             results[batch].set_value(
-                std::make_tuple(std::move(policy[batch]), value[batch]));
+                { std::move(policy[batch]), value[batch] });
         }
     }
 
@@ -227,5 +242,49 @@ void SearchEngine::searchThread(int threadId)
     }
 
     spdlog::info("[search thread {}] shutdown", threadId);
+}
+
+void SearchEngine::deleteThread()
+{
+    const auto& deleteNode = [](TreeNode* node) {
+        static void (*impl)(TreeNode*) = [](TreeNode* node) {
+            for (TreeNode* tempNowNode = node->mostLeftChildNode;
+                 tempNowNode != nullptr;
+                 tempNowNode = tempNowNode->rightSiblingNode)
+                impl(tempNowNode);
+
+            TreeNode* tempNowNode = node->mostLeftChildNode;
+            TreeNode* nodeToDelete = nullptr;
+            while (tempNowNode != nullptr)
+            {
+                nodeToDelete = tempNowNode;
+                tempNowNode = tempNowNode->rightSiblingNode;
+
+                delete nodeToDelete;
+            }
+
+            node->mostLeftChildNode = nullptr;
+        };
+
+        impl(node);
+    };
+
+    spdlog::info("[delete thread] start deleting loop");
+
+    while (runningDeleteThread_)
+    {
+        std::lock_guard<std::mutex> lock(deleteMutex_);
+
+        if (deleteTasks_.empty())
+            continue;
+
+        TreeNode* nodeToDelete = deleteTasks_.front();
+        deleteTasks_.pop_front();
+
+        deleteNode(nodeToDelete);
+        delete nodeToDelete;
+    }
+
+    spdlog::info("[delete thread] shutdown");
 }
 }  // namespace AIO::Search
