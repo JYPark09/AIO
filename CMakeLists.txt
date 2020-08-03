@@ -16,6 +16,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 # 3rd parties
 include_directories(3rdparty/json/include)
 include_directories(3rdparty/random/include)
+include_directories(3rdparty/spdlog/include)
 
 # Include directories
 include_directories(Includes)

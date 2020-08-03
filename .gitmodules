@@ -4,3 +4,6 @@
 [submodule "3rdparty/random"]
 	path = 3rdparty/random
 	url = https://github.com/effolkronium/random
+[submodule "3rdparty/spdlog"]
+	path = 3rdparty/spdlog
+	url = https://github.com/gabime/spdlog
