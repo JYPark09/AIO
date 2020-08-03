@@ -25,7 +25,7 @@ constexpr StoneColor P_INVALID = -100;
 
 namespace ColorUtil
 {
-constexpr StoneColor Opponent(StoneColor color)
+[[nodiscard]] constexpr StoneColor Opponent(StoneColor color)
 {
     if (color == P_INVALID || color == P_NONE)
         return P_INVALID;
@@ -33,8 +33,8 @@ constexpr StoneColor Opponent(StoneColor color)
     return -1 * color;
 }
 
-std::string ColorStr(StoneColor color);
-StoneColor Str2Color(std::string str);
+[[nodiscard]] std::string ColorStr(StoneColor color);
+[[nodiscard]] StoneColor Str2Color(std::string str);
 }  // namespace ColorUtil
 
 using Point = int;
@@ -50,20 +50,20 @@ constexpr std::array<int, 8> Dirs = {
 };
 namespace PointUtil
 {
-constexpr Point XY2Point(int x, int y)
+[[nodiscard]] constexpr Point XY2Point(int x, int y)
 {
     return x + y * EXTENDED_BOARD_WIDTH;
 }
 
-constexpr std::tuple<int, int> Point2XY(Point pt)
+[[nodiscard]] constexpr std::tuple<int, int> Point2XY(Point pt)
 {
     return { pt % static_cast<int>(EXTENDED_BOARD_WIDTH),
              pt / static_cast<int>(EXTENDED_BOARD_WIDTH) };
 }
 
-std::string PointStr(Point pt);
-std::string PointStr(int x, int y);
-Point Str2Point(std::string str);
+[[nodiscard]] std::string PointStr(Point pt);
+[[nodiscard]] std::string PointStr(int x, int y);
+[[nodiscard]] Point Str2Point(std::string str);
 }  // namespace PointUtil
 }  // namespace AIO::Game
 
