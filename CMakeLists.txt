@@ -18,3 +18,5 @@ include_directories(Includes)
 
 # Project module
 add_subdirectory(Sources/AIO)
+
+add_subdirectory(Sources/Play)
