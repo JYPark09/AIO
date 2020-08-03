@@ -1,30 +1,19 @@
-#include <AIO/Game/Board.hpp>
+#include <AIO/Search/SearchEngine.hpp>
 
 #include <iostream>
+#include <thread>
 
 using namespace AIO;
 
-using std::cin;
-using std::cout;
-using std::endl;
-
 int main()
 {
-    Game::Board board;
+    using namespace std::chrono_literals;
 
-    std::string line;
-    while (true)
-    {
-        cout << "Turn: " << board.MoveNum() << '\n';
-        board.ShowBoard(std::cout, true);
+    Search::SearchOptions option;
+    option.NumEvalThreads = 10;
+    option.NumSearchThreads = 10;
 
-        cout << "Play: ";
+    Search::SearchEngine engine(option);
 
-        std::getline(cin, line);
-        const Game::Point pt = Game::PointUtil::Str2Point(line);
-
-        board.Play(pt);
-
-        cout << endl;
-    }
+    std::this_thread::sleep_for(10s);
 }
