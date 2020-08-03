@@ -4,15 +4,50 @@
 #include <AIO/Game/BoardDef.hpp>
 
 #include <array>
+#include <ostream>
+#include <vector>
 
 namespace AIO::Game
 {
-using BoardPlane = std::array<StoneColor, BOARD_SIZE>;
+using BoardPlane = std::array<StoneColor, EXTENDED_BOARD_SIZE>;
 
 class Board final
 {
-public:
+ public:
     Board();
+
+    void Clear();
+
+    [[nodiscard]] bool IsOnBoard(Point pt) const noexcept;
+    [[nodiscard]] bool IsValid(Point pt, StoneColor color) const noexcept;
+
+    [[nodiscard]] std::size_t MoveNum() const noexcept;
+    [[nodiscard]] StoneColor At(Point pt) const;
+    [[nodiscard]] StoneColor At(int x, int y) const;
+    [[nodiscard]] StoneColor Current() const noexcept;
+    [[nodiscard]] StoneColor Opponent() const noexcept;
+    [[nodiscard]] int Score() const noexcept;
+
+    const std::vector<Point>& GetHistory() const noexcept;
+    const std::vector<BoardPlane>& GetPlaneHistory() const noexcept;
+
+    void Play(Point pt);
+    void Play(int x, int y);
+
+    void ShowBoard(std::ostream& out, bool showValid = false) const;
+
+ private:
+    [[nodiscard]] StoneColor& At(Point pt);
+    [[nodiscard]] StoneColor& At(int x, int y);
+
+    void flipStones(Point pt, StoneColor color);
+
+ private:
+    BoardPlane board_;
+    StoneColor current_{ P_INVALID };
+
+    std::vector<Point> history_;
+    std::vector<BoardPlane> planeHistory_;
 };
 }  // namespace AIO::Game
 
