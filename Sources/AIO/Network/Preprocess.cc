@@ -16,7 +16,7 @@ namespace AIO::Network
 Tensor StateToTensor(const Game::Board& state)
 {
     Tensor ret(Game::BOARD_SIZE * TENSOR_DIM);
-    std::fill(ret.begin(), ret.end(), 0);
+    std::fill(ret.begin(), ret.end(), 0.f);
 
     const auto& planes = state.GetPlaneHistory();
 
@@ -43,7 +43,8 @@ Tensor StateToTensor(const Game::Board& state)
     }
 
     std::fill(ret.begin() + idx(TENSOR_DIM - 1, 0, 0),
-              ret.begin() + idx(TENSOR_DIM, 0, 0), cur == Game::P_BLACK);
+              ret.begin() + idx(TENSOR_DIM, 0, 0),
+              static_cast<float>(cur == Game::P_BLACK));
 
     return ret;
 }

@@ -15,7 +15,11 @@ void SearchOptions::Load(const std::string_view& filename)
     file >> j;
 
     // Fill data
+    WeightFileName = j.value<std::string>("WeightFileName", WeightFileName);
+
+    NumEvalThreads = j.value<int>("NumEvalThreads", NumEvalThreads);
     NumSearchThreads = j.value<int>("NumSearchThreads", NumSearchThreads);
+    BatchSize = j.value<int>("BatchSize", BatchSize);
 
     VirtualLoss = j.value<float>("VirtualLoss", VirtualLoss);
     cPUCT = j.value<float>("cPUCT", cPUCT);
