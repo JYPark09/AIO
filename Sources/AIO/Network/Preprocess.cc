@@ -42,7 +42,7 @@ Tensor StateToTensor(const Game::Board& state)
         }
     }
 
-    std::fill(ret.begin() + idx(TENSOR_DIM - 1, 0, 0),
+    std::fill(ret.begin() + idx(TENSOR_DIM - 1, 1, 1),
               ret.end(),
               static_cast<float>(cur == Game::P_BLACK));
 
