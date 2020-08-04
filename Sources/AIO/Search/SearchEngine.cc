@@ -4,11 +4,12 @@
 #include <AIO/Network/FakeNetwork.hpp>
 #include <AIO/Utils/Utils.hpp>
 
-#include <spdlog/spdlog.h>
 #include <effolkronium/random.hpp>
+#include <spdlog/spdlog.h>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <random>
 
 namespace AIO::Search
 {
