@@ -5,11 +5,12 @@
 #include <AIO/Utils/Utils.hpp>
 
 #include <effolkronium/random.hpp>
-#include <spdlog/spdlog.h>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 #include <random>
+
+#include <spdlog/spdlog.h>
 
 namespace AIO::Search
 {
@@ -39,7 +40,8 @@ SearchEngine::SearchEngine(SearchOptions option)
 
     updateRoot(nullptr);
 
-    spdlog::info("search engine initialize done");
+    if (option_.Verbose)
+        spdlog::info("search engine initialize done");
 }
 
 SearchEngine::~SearchEngine()
@@ -53,6 +55,15 @@ SearchEngine::~SearchEngine()
     for (auto& t : evalThreads_)
         if (t.joinable())
             t.join();
+
+    {
+        std::lock_guard<std::mutex> lock(deleteMutex_);
+
+        deleteTasks_.emplace_back(root_);
+    }
+
+    // maybe root is deleted during this time
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     runningDeleteThread_ = false;
     if (deleteThread_.joinable())
@@ -175,7 +186,7 @@ void SearchEngine::updateRoot(TreeNode* newNode)
         for (TreeNode* tempNowNode = node->mostLeftChildNode;
              tempNowNode != nullptr;
              tempNowNode = tempNowNode->rightSiblingNode)
-            node->parentNode = node;
+            tempNowNode->parentNode = node;
 
         node->parentNode = nullptr;
     }
@@ -231,7 +242,9 @@ void SearchEngine::pauseSearch()
     if (manager_.GetState() == SearchState::SEARCHING)
     {
         manager_.Pause();
-        spdlog::info("pause search");
+
+        if (option_.Verbose)
+            spdlog::info("pause search");
     }
 }
 
@@ -243,7 +256,9 @@ void SearchEngine::resumeSearch()
         initRoot();
 
         manager_.Resume();
-        spdlog::info("resume search");
+
+        if (option_.Verbose)
+            spdlog::info("resume search");
     }
 }
 
@@ -276,10 +291,12 @@ void SearchEngine::enqDelete(TreeNode* node)
 void SearchEngine::evalThread(int threadId,
                               std::unique_ptr<Network::Network> network)
 {
-    spdlog::info("[eval thread {}] initialize start", threadId);
+    if (option_.Verbose)
+        spdlog::info("[eval thread {}] initialize start", threadId);
     network->Initialize(option_.WeightFileName);
 
-    spdlog::info("[eval thread {}] initialize ended", threadId);
+    if (option_.Verbose)
+        spdlog::info("[eval thread {}] initialize ended", threadId);
     networkBarrier_.Done();
 
     while (runningEvalThread_)
@@ -319,19 +336,21 @@ void SearchEngine::evalThread(int threadId,
         }
     }
 
-    spdlog::info("[eval thread {}] shutdown", threadId);
+    if (option_.Verbose)
+        spdlog::info("[eval thread {}] shutdown", threadId);
 }
 
-// ReSharper disable once CppInconsistentNaming
 void SearchEngine::searchThread(int threadId)
 {
     if (!manager_.WaitResume())
     {
-        spdlog::info("[search thread {}] shutdown", threadId);
+        if (option_.Verbose)
+            spdlog::info("[search thread {}] shutdown", threadId);
         return;
     }
 
-    spdlog::info("[search thread {}] start searching loop", threadId);
+    if (option_.Verbose)
+        spdlog::info("[search thread {}] start searching loop", threadId);
 
     while (true)
     {
@@ -350,13 +369,13 @@ void SearchEngine::searchThread(int threadId)
         TreeNode* tempNowNode = root_;
         while (tempNowNode->state == ExpandState::EXPANDED)
         {
-            bd.Play(tempNowNode->action);
-
             tempNowNode = tempNowNode->Select(option_);
+
+            bd.Play(tempNowNode->action);
             Utils::AtomicAdd(tempNowNode->virtualLoss, option_.VirtualLoss);
         }
 
-        const Game::StoneColor current = bd.Current();
+        const Game::StoneColor current = bd.Opponent();
 
         float valueToUpdate = 0;
         if (bd.IsEnd())
@@ -380,7 +399,10 @@ void SearchEngine::searchThread(int threadId)
         {
             Utils::AtomicAdd(tempNowNode->values, valueToUpdate);
             ++tempNowNode->visits;
-            Utils::AtomicAdd(tempNowNode->virtualLoss, -option_.VirtualLoss);
+
+            if (tempNowNode != root_)
+                Utils::AtomicAdd(tempNowNode->virtualLoss,
+                                 -option_.VirtualLoss);
 
             tempNowNode = tempNowNode->parentNode;
 
@@ -390,7 +412,8 @@ void SearchEngine::searchThread(int threadId)
         ++numOfSimulations_;
     }
 
-    spdlog::info("[search thread {}] shutdown", threadId);
+    if (option_.Verbose)
+        spdlog::info("[search thread {}] shutdown", threadId);
 }
 
 void SearchEngine::deleteThread()
@@ -418,7 +441,8 @@ void SearchEngine::deleteThread()
         impl(node);
     };
 
-    spdlog::info("[delete thread] start deleting loop");
+    if (option_.Verbose)
+        spdlog::info("[delete thread] start deleting loop");
 
     while (runningDeleteThread_)
     {
@@ -434,6 +458,7 @@ void SearchEngine::deleteThread()
         delete nodeToDelete;
     }
 
-    spdlog::info("[delete thread] shutdown");
+    if (option_.Verbose)
+        spdlog::info("[delete thread] shutdown");
 }
 }  // namespace AIO::Search

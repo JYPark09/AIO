@@ -22,6 +22,8 @@ struct SearchOptions final
     float DirichletNoiseAlpha{ 0.03f };
     float DirichletNoiseEps{ 0.75f };
 
+    bool Verbose{ true };
+
     void Load(const std::string_view& filename);
 };
 }  // namespace AIO::Search

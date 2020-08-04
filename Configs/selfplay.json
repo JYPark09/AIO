@@ -1,0 +1,20 @@
+{
+	"GameThreads": 1,
+	"DataDir": "selfdata",
+	
+
+	"WeightFileName": "asdf",
+	
+	"NumEvalThreads": 1,
+	"NumSearchThreads": 1,
+	"BatchSize": 16,
+	
+	"VirtualLoss": 1,
+	"cPUCT": 1.8,
+	
+	"MaxSimulations": 80,
+	
+	"EnableDirichletNoise": true,
+	"DirichletNoiseAlpha": 0.03,
+	"DirichletNoiseEps": 0.75
+}
