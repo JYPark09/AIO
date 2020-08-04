@@ -8,6 +8,7 @@
 #include <AIO/Search/TreeNode.hpp>
 #include <AIO/Utils/Barrier.hpp>
 
+#include <atomic>
 #include <deque>
 #include <future>
 #include <memory>
@@ -43,6 +44,9 @@ class SearchEngine final
     void updateRoot(TreeNode* newNode);
     void initRoot();
 
+    void resumeSearch();
+    void pauseSearch();
+
     void evaluate(const Game::Board& state, Network::Tensor& policy,
                   float& value);
     void enqDelete(TreeNode* node);
@@ -75,6 +79,9 @@ class SearchEngine final
     bool runningEvalThread_{ true };
     bool runningDeleteThread_{ true };
     SearchManager manager_;
+
+    // statistics
+    std::atomic<int> numOfSimulations_{ 0 };
 };
 }  // namespace AIO::Search
 

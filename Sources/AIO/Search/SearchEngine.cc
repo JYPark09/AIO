@@ -55,6 +55,15 @@ SearchEngine::~SearchEngine()
 
 void SearchEngine::Search()
 {
+    resumeSearch();
+
+    bool stopFlag = false;
+    while (!stopFlag)
+    {
+        stopFlag |= (numOfSimulations_ >= option_.MaxSimulations);
+    }
+
+    pauseSearch();
 }
 
 void SearchEngine::Play(Game::Point pt)
@@ -137,6 +146,27 @@ void SearchEngine::initRoot()
         evaluate(mainBoard_, policy, value);
 
         root_->Expand(mainBoard_, policy);
+    }
+}
+
+void SearchEngine::pauseSearch()
+{
+    if (manager_.GetState() == SearchState::SEARCHING)
+    {
+        manager_.Pause();
+        spdlog::info("pause search");
+    }
+}
+
+void SearchEngine::resumeSearch()
+{
+    if (manager_.GetState() == SearchState::PAUSE)
+    {
+        numOfSimulations_ = 0;
+        initRoot();
+
+        manager_.Resume();
+        spdlog::info("resume search");
     }
 }
 
