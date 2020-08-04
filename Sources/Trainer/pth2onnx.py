@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     pth_file = sys.argv[1]
 
-    net = ResNet(9, 128, 5, 9**2)
+    net = ResNet(9, 128, 5, 8**2, True)
 
     if os.path.exists(pth_file):
         state_dict = torch.load(pth_file, map_location='cpu')
@@ -24,5 +24,5 @@ if __name__ == '__main__':
     ext_pos = pth_file.rfind('.')
     onnx_file = pth_file[:ext_pos] + '.onnx' if ext_pos != -1 else pth_file + '.onnx'
 
-    dummy_input = torch.zeros(1, 9, 9, 9)
+    dummy_input = torch.zeros(100, 9, 8, 8)
     torch.onnx.export(net, dummy_input, onnx_file, verbose=True)
