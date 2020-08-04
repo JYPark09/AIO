@@ -31,5 +31,7 @@ void SearchOptions::Load(const std::string_view& filename)
     DirichletNoiseEps = j.value<float>("DirichletNoiseEps", DirichletNoiseEps);
 
     MaxSimulations = j.value<int>("MaxSimulations", MaxSimulations);
+
+    Verbose = j.value<bool>("Verbose", Verbose);
 }
 }  // namespace AIO::Search
