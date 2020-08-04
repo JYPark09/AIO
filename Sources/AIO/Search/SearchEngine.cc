@@ -5,11 +5,12 @@
 #include <AIO/Utils/Utils.hpp>
 
 #include <effolkronium/random.hpp>
-#include <spdlog/spdlog.h>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
 #include <random>
+
+#include <spdlog/spdlog.h>
 
 namespace AIO::Search
 {
@@ -350,13 +351,13 @@ void SearchEngine::searchThread(int threadId)
         TreeNode* tempNowNode = root_;
         while (tempNowNode->state == ExpandState::EXPANDED)
         {
-            bd.Play(tempNowNode->action);
-
             tempNowNode = tempNowNode->Select(option_);
+
+            bd.Play(tempNowNode->action);
             Utils::AtomicAdd(tempNowNode->virtualLoss, option_.VirtualLoss);
         }
 
-        const Game::StoneColor current = bd.Current();
+        const Game::StoneColor current = bd.Opponent();
 
         float valueToUpdate = 0;
         if (bd.IsEnd())
@@ -380,7 +381,10 @@ void SearchEngine::searchThread(int threadId)
         {
             Utils::AtomicAdd(tempNowNode->values, valueToUpdate);
             ++tempNowNode->visits;
-            Utils::AtomicAdd(tempNowNode->virtualLoss, -option_.VirtualLoss);
+
+            if (tempNowNode != root_)
+                Utils::AtomicAdd(tempNowNode->virtualLoss,
+                                 -option_.VirtualLoss);
 
             tempNowNode = tempNowNode->parentNode;
 

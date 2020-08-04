@@ -7,19 +7,21 @@
 namespace AIO::Search
 {
 TreeNode::TreeNode(TreeNode&& other) noexcept
-    : action(other.action),
+    : state(other.state.load()),
+      action(other.action),
       color(other.color),
       numChildren(other.numChildren),
       policy(other.policy),
+      visits(other.visits.load()),
+      values(other.values.load()),
+      virtualLoss(other.virtualLoss.load()),
       parentNode(other.parentNode),
       mostLeftChildNode(other.mostLeftChildNode),
       rightSiblingNode(other.rightSiblingNode)
 {
-    state = other.state.load();
-
-    visits = other.visits.load();
-    values = other.values.load();
-    virtualLoss = other.virtualLoss.load();
+    other.state = ExpandState::UNEXPANDED;
+    other.mostLeftChildNode = nullptr;
+    other.numChildren = 0;
 }
 
 TreeNode* TreeNode::Select(const SearchOptions& opt) const
