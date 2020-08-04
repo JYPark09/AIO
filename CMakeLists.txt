@@ -40,5 +40,6 @@ include_directories(Includes)
 # Project module
 add_subdirectory(Sources/AIO)
 
+add_subdirectory(Extensions/NetTest)
 add_subdirectory(Extensions/Play)
 add_subdirectory(Extensions/Selfplay)
