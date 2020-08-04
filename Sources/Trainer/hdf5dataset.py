@@ -20,4 +20,4 @@ class H5Dataset(data.Dataset):
 
     def __len__(self):
         with h5py.File(self.filename, 'r') as f:
-            return f['states'].shape[0]
+            return f['feature'].shape[0]

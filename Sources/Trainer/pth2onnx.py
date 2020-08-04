@@ -15,7 +15,7 @@ if __name__ == '__main__':
     net = ResNet(9, 128, 5, 8**2, True)
 
     if os.path.exists(pth_file):
-        state_dict = torch.load(pth_file, map_location='cpu')
+        state_dict = torch.load(pth_file, map_location='cpu')['state_dict']
         net.load_state_dict(state_dict)
 
         print('{} loaded'.format(pth_file))
