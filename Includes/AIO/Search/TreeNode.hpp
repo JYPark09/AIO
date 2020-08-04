@@ -3,6 +3,7 @@
 
 #include <AIO/Game/Board.hpp>
 #include <AIO/Network/Preprocess.hpp>
+#include <AIO/Search/SearchOptions.hpp>
 
 #include <atomic>
 
@@ -34,6 +35,7 @@ struct TreeNode final
     TreeNode* mostLeftChildNode{ nullptr };
     TreeNode* rightSiblingNode{ nullptr };
 
+    TreeNode* Select(const SearchOptions& opt) const;
     void Expand(const Game::Board& state, const Network::Tensor& policy);
 };
 }  // namespace AIO::Search
