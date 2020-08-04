@@ -1,7 +1,9 @@
 #include "SelfplayGame.hpp"
 #include "SelfplayOptions.hpp"
 
+#include <atomic>
 #include <ctime>
+#include <csignal>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -13,6 +15,16 @@
 using namespace AIO;
 
 namespace fs = std::filesystem;
+
+std::atomic<bool> running{ true };
+void signalHandler(int signal)
+{
+    if (signal == SIGINT || signal == SIGTERM)
+    {
+        spdlog::info("received stop signal");
+        running = false;
+    }
+}
 
 std::string makeDateStr()
 {
@@ -30,6 +42,9 @@ std::string makeDateStr()
 
 int main()
 {
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+
     SelfplayOptions opt;
     opt.Load("selfplay.json");
 
@@ -43,7 +58,7 @@ int main()
     for (int threadId = 0; threadId < opt.GameThreads; ++threadId)
     {
         gameThreads[threadId] = std::thread([&opt, threadId] {
-            while (true)
+            while (running.load())
             {
                 const std::string dataDir = opt.DataDir + "/" + makeDateStr() +
                                             "_" + std::to_string(threadId);
@@ -78,4 +93,6 @@ int main()
     for (auto& thread : gameThreads)
         if (thread.joinable())
             thread.join();
+
+    spdlog::info("selfplay shutdown");
 }
