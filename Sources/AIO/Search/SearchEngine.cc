@@ -5,8 +5,10 @@
 #include <AIO/Utils/Utils.hpp>
 
 #include <spdlog/spdlog.h>
+#include <effolkronium/random.hpp>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 
 namespace AIO::Search
 {
@@ -173,6 +175,8 @@ void SearchEngine::updateRoot(TreeNode* newNode)
              tempNowNode != nullptr;
              tempNowNode = tempNowNode->rightSiblingNode)
             node->parentNode = node;
+
+        node->parentNode = nullptr;
     }
 
     if (root_ != nullptr)
@@ -190,6 +194,34 @@ void SearchEngine::initRoot()
         evaluate(mainBoard_, policy, value);
 
         root_->Expand(mainBoard_, policy);
+    }
+
+    if (option_.EnableDirichletNoise)
+    {
+        std::gamma_distribution<float> dist(option_.DirichletNoiseAlpha);
+        std::array<float, Game::BOARD_SIZE> noise;
+
+        for (std::size_t i = 0; i < Game::BOARD_SIZE; ++i)
+            noise[i] = effolkronium::random_static::get(dist);
+
+        const float noiseSum = std::accumulate(
+            noise.begin(), noise.begin() + root_->numChildren, 1e-10f);
+
+        float total = 1e-10f;
+        std::size_t idx = 0;
+        for (TreeNode* child = root_->mostLeftChildNode; child != nullptr;
+             child = child->rightSiblingNode, ++idx)
+        {
+            child->policy =
+                (option_.DirichletNoiseEps) * child->policy +
+                (1.f - option_.DirichletNoiseEps) * noise[idx] / noiseSum;
+
+            total += child->policy;
+        }
+
+        for (TreeNode* child = root_->mostLeftChildNode; child != nullptr;
+             child = child->rightSiblingNode)
+            child->policy /= total;
     }
 }
 

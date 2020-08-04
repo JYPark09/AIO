@@ -24,6 +24,12 @@ void SearchOptions::Load(const std::string_view& filename)
     VirtualLoss = j.value<float>("VirtualLoss", VirtualLoss);
     cPUCT = j.value<float>("cPUCT", cPUCT);
 
+    EnableDirichletNoise =
+        j.value<bool>("EnableDirichletNoise", EnableDirichletNoise);
+    DirichletNoiseAlpha =
+        j.value<float>("DirichletNoiseAlpha", DirichletNoiseAlpha);
+    DirichletNoiseEps = j.value<float>("DirichletNoiseEps", DirichletNoiseEps);
+
     MaxSimulations = j.value<int>("MaxSimulations", MaxSimulations);
 }
 }  // namespace AIO::Search

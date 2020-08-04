@@ -18,6 +18,10 @@ struct SearchOptions final
 
     int MaxSimulations{ 100 };
 
+    bool EnableDirichletNoise{ false };
+    float DirichletNoiseAlpha{ 0.03f };
+    float DirichletNoiseEps{ 0.75f };
+
     void Load(const std::string_view& filename);
 };
 }  // namespace AIO::Search

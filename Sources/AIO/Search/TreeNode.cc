@@ -9,6 +9,9 @@ namespace AIO::Search
 TreeNode::TreeNode(TreeNode&& other) noexcept
     : action(other.action),
       color(other.color),
+      numChildren(other.numChildren),
+      policy(other.policy),
+      parentNode(other.parentNode),
       mostLeftChildNode(other.mostLeftChildNode),
       rightSiblingNode(other.rightSiblingNode)
 {
@@ -75,7 +78,8 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
             return;
 
         ExpandState expected = ExpandState::UNEXPANDED;
-        if (!this->state.compare_exchange_weak(expected, ExpandState::EXPANDING))
+        if (!this->state.compare_exchange_weak(expected,
+                                               ExpandState::EXPANDING))
             return;
     }
 
@@ -107,6 +111,7 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
         else
             nowNode->rightSiblingNode = node;
 
+        ++node->numChildren;
         node->parentNode = this;
         nowNode = node;
     }
