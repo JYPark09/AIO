@@ -2,6 +2,7 @@
 #include <AIO/Search/SearchEngine.hpp>
 
 #include <AIO/Network/FakeNetwork.hpp>
+#include <AIO/Utils/Utils.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -68,7 +69,21 @@ void SearchEngine::Search()
 
 void SearchEngine::Play(Game::Point pt)
 {
+    pauseSearch();
+
     mainBoard_.Play(pt);
+
+    TreeNode* newRoot = nullptr;
+    for (TreeNode* tempNowNode = root_->mostLeftChildNode;
+         tempNowNode != nullptr; tempNowNode = tempNowNode->rightSiblingNode)
+    {
+        if (tempNowNode->action == pt)
+        {
+            newRoot = tempNowNode;
+            break;
+        }
+    }
+    updateRoot(newRoot);
 }
 
 Game::Point SearchEngine::GetBestMove() const
@@ -268,7 +283,49 @@ void SearchEngine::searchThread(int threadId)
         }
 
         // Searching routine
-        // TODO: Implement this
+        Game::Board bd(mainBoard_);
+
+        TreeNode* tempNowNode = root_;
+        while (tempNowNode->state == ExpandState::EXPANDED)
+        {
+            bd.Play(tempNowNode->action);
+
+            tempNowNode = tempNowNode->Select(option_);
+            Utils::AtomicAdd(tempNowNode->virtualLoss, option_.VirtualLoss);
+        }
+
+        const Game::StoneColor current = bd.Current();
+
+        float valueToUpdate = 0;
+        if (bd.IsEnd())
+        {
+            const Game::StoneColor winner = bd.GetWinner();
+
+            if (winner == current)
+                valueToUpdate = 1;
+            else if (winner != Game::P_NONE)
+                valueToUpdate = -1;
+        }
+        else
+        {
+            Network::Tensor policy;
+            evaluate(bd, policy, valueToUpdate);
+
+            tempNowNode->Expand(bd, policy);
+        }
+
+        while (tempNowNode != nullptr)
+        {
+            Utils::AtomicAdd(tempNowNode->values, valueToUpdate);
+            ++tempNowNode->visits;
+            Utils::AtomicAdd(tempNowNode->virtualLoss, -option_.VirtualLoss);
+
+            tempNowNode = tempNowNode->parentNode;
+
+            valueToUpdate = -valueToUpdate;
+        }
+
+        ++numOfSimulations_;
     }
 
     spdlog::info("[search thread {}] shutdown", threadId);

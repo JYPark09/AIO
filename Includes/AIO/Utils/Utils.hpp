@@ -8,11 +8,11 @@
 namespace AIO::Utils
 {
 template <typename T>
-void AtomicAdd(std::atomic<T> t, T value)
+void AtomicAdd(std::atomic<T>& t, T value)
 {
     T oldValue = t.load();
 
-    while (!t.compare_exchange_weak(old, old + value))
+    while (!t.compare_exchange_weak(oldValue, oldValue + value))
         ;
 }
 

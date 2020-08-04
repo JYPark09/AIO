@@ -107,6 +107,7 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
         else
             nowNode->rightSiblingNode = node;
 
+        node->parentNode = this;
         nowNode = node;
     }
 
