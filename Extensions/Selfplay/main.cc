@@ -66,7 +66,7 @@ int main()
                     featFile << '\n';
 
                     for (auto it = td.pi.begin(); it != probEndIt; ++it)
-                        probFile << static_cast<int>(*it) << ' ';
+                        probFile << *it << ' ';
                     probFile << '\n';
 
                     valFile << td.z << '\n';
@@ -74,4 +74,8 @@ int main()
             }
         });
     }
+
+    for (auto& thread : gameThreads)
+        if (thread.joinable())
+            thread.join();
 }

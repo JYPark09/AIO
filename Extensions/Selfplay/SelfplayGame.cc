@@ -37,6 +37,8 @@ std::vector<TrainingData> RunGame(const SelfplayOptions& opt)
                 child->visits;
         }
 
+        gameData.emplace_back(data);
+
         const Game::Point bestMove = curPlayer.GetBestMove();
         blackEngine.Play(bestMove);
         whiteEngine.Play(bestMove);
@@ -50,12 +52,14 @@ std::vector<TrainingData> RunGame(const SelfplayOptions& opt)
     const std::size_t gameLength = gameData.size();
     for (std::size_t i = 0; i < gameLength; ++i)
     {
-        if (i % 2 == 0 && winner == Game::P_BLACK)
+        if (winner == Game::P_NONE)
+            gameData[i].z = 0;
+        else if (i % 2 == 0 && winner == Game::P_BLACK)
             gameData[i].z = 1;
         else if (i % 2 == 1 && winner == Game::P_WHITE)
-            gameData[i].z = -1;
+            gameData[i].z = 1;
         else
-            gameData[i].z = 0;
+            gameData[i].z = -1;
     }
 
     return gameData;
