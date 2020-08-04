@@ -5,6 +5,8 @@
 #include <AIO/Utils/Utils.hpp>
 
 #include <spdlog/spdlog.h>
+#include <iomanip>
+#include <iostream>
 
 namespace AIO::Search
 {
@@ -86,6 +88,47 @@ void SearchEngine::Play(Game::Point pt)
     updateRoot(newRoot);
 }
 
+void SearchEngine::DumpStats() const
+{
+    std::vector<TreeNode*> children;
+    for (TreeNode* tempNowNode = root_->mostLeftChildNode;
+         tempNowNode != nullptr; tempNowNode = tempNowNode->rightSiblingNode)
+    {
+        children.emplace_back(tempNowNode);
+    }
+
+    std::sort(children.begin(), children.end(),
+              [](TreeNode* a, TreeNode* b) { return a->visits > b->visits; });
+
+    std::cerr << "root value: " << (root_->values / root_->visits) << '\n'
+              << "total simulation: " << numOfSimulations_ << '\n'
+              << "root visits: " << root_->visits << '\n';
+
+    for (const TreeNode* child : children)
+    {
+        if (child->visits == 0)
+            break;
+
+        std::cerr << std::right << std::setw(5)
+                  << Game::PointUtil::PointStr(child->action)
+                  << " : (N: " << child->visits
+                  << ") (Q: " << (child->values / child->visits)
+                  << ") (P: " << child->policy << ") -> ";
+
+        while (true)
+        {
+            std::cerr << Game::PointUtil::PointStr(child->action) << ' ';
+
+            if (child->state == ExpandState::EXPANDED)
+                child = child->GetMaxVisitedChild();
+            else
+                break;
+        }
+
+        std::cerr << '\n';
+    }
+}
+
 Game::Point SearchEngine::GetBestMove() const
 {
     const TreeNode* bestNode = getBestNode();
@@ -111,21 +154,7 @@ const TreeNode* SearchEngine::getBestNode() const
     if (root_ == nullptr)
         return nullptr;
 
-    int maxVisits = 0;
-    TreeNode* bestChild = nullptr;
-
-    for (TreeNode* tempNowNode = root_->mostLeftChildNode;
-         tempNowNode != nullptr; tempNowNode = tempNowNode->rightSiblingNode)
-    {
-        const int visits = tempNowNode->visits.load();
-        if (visits > maxVisits)
-        {
-            maxVisits = visits;
-            bestChild = tempNowNode;
-        }
-    }
-
-    return bestChild;
+    return root_->GetMaxVisitedChild();
 }
 
 void SearchEngine::updateRoot(TreeNode* newNode)

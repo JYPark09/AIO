@@ -33,6 +33,7 @@ class SearchEngine final
 
     void Search();
     void Play(Game::Point pt);
+    void DumpStats() const;
 
     [[nodiscard]] Game::Point GetBestMove() const;
     [[nodiscard]] const TreeNode* GetRoot() const noexcept;

@@ -75,7 +75,7 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
             return;
 
         ExpandState expected = ExpandState::UNEXPANDED;
-        if (this->state.compare_exchange_weak(expected, ExpandState::EXPANDING))
+        if (!this->state.compare_exchange_weak(expected, ExpandState::EXPANDING))
             return;
     }
 
@@ -112,5 +112,26 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
     }
 
     this->state = ExpandState::EXPANDED;
+}
+
+TreeNode* TreeNode::GetMaxVisitedChild() const
+{
+    int maxVisits = -INT_MAX;
+    TreeNode* maxNode = nullptr;
+
+    for (TreeNode* tempNowNode = mostLeftChildNode; tempNowNode != nullptr;
+         tempNowNode = tempNowNode->rightSiblingNode)
+    {
+        const int v = tempNowNode->visits;
+
+        if (maxVisits < v)
+        {
+            maxVisits = v;
+            maxNode = tempNowNode;
+        }
+    }
+
+    assert(maxNode != nullptr);
+    return maxNode;
 }
 }  // namespace AIO::Search

@@ -37,6 +37,8 @@ struct TreeNode final
 
     TreeNode* Select(const SearchOptions& opt) const;
     void Expand(const Game::Board& state, const Network::Tensor& policy);
+
+    TreeNode* GetMaxVisitedChild() const;
 };
 }  // namespace AIO::Search
 

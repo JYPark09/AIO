@@ -15,5 +15,7 @@ int main()
 
     Search::SearchEngine engine(option);
 
-    std::this_thread::sleep_for(10s);
+    engine.Search();
+
+    engine.DumpStats();
 }

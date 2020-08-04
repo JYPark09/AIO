@@ -26,7 +26,7 @@ Tensor StateToTensor(const Game::Board& state)
     const std::size_t moves = std::min(state.MoveNum(), PAST_MOVES);
     for (std::size_t move = 0; move < moves; ++move)
     {
-        const auto& past = *(planes.end() - (moves + 1));
+        const auto& past = *(planes.end() - (move + 1));
 
         for (std::size_t y = 1; y <= Game::BOARD_HEIGHT; ++y)
         {
