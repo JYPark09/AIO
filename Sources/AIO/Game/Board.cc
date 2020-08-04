@@ -27,10 +27,10 @@ void Board::Clear()
         At(EXTENDED_BOARD_WIDTH - 1, y) = P_INVALID;
     }
 
-    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2) = P_BLACK;
-    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2) = P_WHITE;
-    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 1) = P_WHITE;
-    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2 + 1) = P_BLACK;
+    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2) = P_WHITE;
+    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2) = P_BLACK;
+    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 1) = P_BLACK;
+    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2 + 1) = P_WHITE;
 
     current_ = P_BLACK;
 
