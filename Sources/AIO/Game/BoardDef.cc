@@ -1,6 +1,7 @@
 #include <AIO/Game/BoardDef.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <sstream>
 
 namespace AIO::Game
@@ -29,7 +30,8 @@ StoneColor Str2Color(std::string str)
 {
     using namespace std::string_literals;
 
-    std::transform(str.begin(), str.end(), str.begin(), std::toupper);
+    std::transform(str.begin(), str.end(), str.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
 
     if (str == "B"s || str == "BLACK"s)
         return P_BLACK;
@@ -69,7 +71,8 @@ Point Str2Point(std::string str)
 {
     using namespace std::string_literals;
 
-    std::transform(str.begin(), str.end(), str.begin(), std::toupper);
+    std::transform(str.begin(), str.end(), str.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
 
     const int x = str[0] - 'A';
     const int y = std::stoi(str.substr((1)));

@@ -1,7 +1,7 @@
 #ifndef AIO_SEARCH_OPTIONS_HPP
 #define AIO_SEARCH_OPTIONS_HPP
 
-#include <string_view>
+#include <string>
 
 namespace AIO::Search
 {

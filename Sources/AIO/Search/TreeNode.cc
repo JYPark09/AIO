@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cfloat>
 #include <cmath>
+#include <climits>
 
 namespace AIO::Search
 {
@@ -57,7 +59,7 @@ TreeNode* TreeNode::Select(const SearchOptions& opt) const
             const float p = tempNowNode->policy;
             const float v = tempNowNode->visits;
 
-            u = opt.cPUCT * p * std::sqrtf(totalParentVisits) / (1.f + v);
+            u = opt.cPUCT * p * std::sqrt(totalParentVisits) / (1.f + v);
         }
 
         const float value = Q + u;

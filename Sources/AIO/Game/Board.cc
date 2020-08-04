@@ -1,5 +1,6 @@
 #include <AIO/Game/Board.hpp>
 
+#include <algorithm>
 #include <iomanip>
 #include <numeric>
 
