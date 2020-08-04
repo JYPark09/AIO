@@ -18,8 +18,8 @@ class Board final
 
     void Clear();
 
-    [[nodiscard]] bool IsOnBoard(Point pt) const noexcept;
-    [[nodiscard]] bool IsValid(Point pt, StoneColor color) const noexcept;
+    [[nodiscard]] bool IsOnBoard(Point pt) const;
+    [[nodiscard]] bool IsValid(Point pt, StoneColor color) const;
 
     [[nodiscard]] std::size_t MoveNum() const noexcept;
     [[nodiscard]] StoneColor At(Point pt) const;
@@ -28,6 +28,9 @@ class Board final
     [[nodiscard]] StoneColor Opponent() const noexcept;
     [[nodiscard]] int Score() const noexcept;
     [[nodiscard]] std::vector<Point> ValidMoves() const;
+
+    [[nodiscard]] bool IsEnd() const;
+    [[nodiscard]] StoneColor GetWinner() const;
 
     [[nodiscard]] const std::vector<Point>& GetHistory() const noexcept;
     [[nodiscard]]const std::vector<BoardPlane>& GetPlaneHistory() const noexcept;
@@ -42,6 +45,7 @@ class Board final
     [[nodiscard]] StoneColor& At(int x, int y);
 
     void flipStones(Point pt, StoneColor color);
+    std::tuple<int, int, int> calcTerritory() const noexcept;
 
  private:
     BoardPlane board_;

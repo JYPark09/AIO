@@ -38,14 +38,14 @@ void Board::Clear()
     planeHistory_.push_back(board_);
 }
 
-bool Board::IsOnBoard(Point pt) const noexcept
+bool Board::IsOnBoard(Point pt) const
 {
     auto [x, y] = PointUtil::Point2XY(pt);
 
     return (x >= 0 && y >= 0) && (x < BOARD_WIDTH && y < BOARD_HEIGHT);
 }
 
-bool Board::IsValid(Point pt, StoneColor color) const noexcept
+bool Board::IsValid(Point pt, StoneColor color) const
 {
     if (board_[pt] != P_NONE)
         return false;
@@ -107,7 +107,9 @@ StoneColor Board::Opponent() const noexcept
 
 int Board::Score() const noexcept
 {
-    return std::accumulate(board_.begin(), board_.end(), 0);
+    auto [black, white, empty] = calcTerritory();
+
+    return white - black;
 }
 
 std::vector<Point> Board::ValidMoves() const
@@ -126,6 +128,35 @@ std::vector<Point> Board::ValidMoves() const
     }
 
     return ret;
+}
+
+bool Board::IsEnd() const
+{
+    if (ValidMoves().empty())
+        return true;
+
+    const std::size_t emptyCount =
+        std::count(board_.begin(), board_.end(), P_NONE);
+
+    return emptyCount == 0;
+}
+
+StoneColor Board::GetWinner() const
+{
+    if (ValidMoves().empty())
+        return Opponent();
+
+    auto [black, white, empty] = calcTerritory();
+    if (empty > 0)
+        return P_INVALID;
+
+    if (black > white)
+        return P_BLACK;
+
+    if (black < white)
+        return P_WHITE;
+
+    return P_NONE;
 }
 
 const std::vector<Point>& Board::GetHistory() const noexcept
@@ -208,5 +239,20 @@ void Board::flipStones(Point pt, StoneColor color)
             }
         }
     }
+}
+
+std::tuple<int, int, int> Board::calcTerritory() const noexcept
+{
+    int scores[3] = { 0 };
+
+    for (int y = 1; y <= BOARD_HEIGHT; ++y)
+    {
+        for (int x = 1; x <= BOARD_WIDTH; ++x)
+        {
+            ++scores[At(x, y) + 1];
+        }
+    }
+
+    return { scores[0], scores[2], scores[1] };
 }
 }  // namespace AIO::Game

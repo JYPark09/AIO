@@ -15,10 +15,20 @@ void SearchOptions::Load(const std::string_view& filename)
     file >> j;
 
     // Fill data
+    WeightFileName = j.value<std::string>("WeightFileName", WeightFileName);
+
+    NumEvalThreads = j.value<int>("NumEvalThreads", NumEvalThreads);
     NumSearchThreads = j.value<int>("NumSearchThreads", NumSearchThreads);
+    BatchSize = j.value<int>("BatchSize", BatchSize);
 
     VirtualLoss = j.value<float>("VirtualLoss", VirtualLoss);
     cPUCT = j.value<float>("cPUCT", cPUCT);
+
+    EnableDirichletNoise =
+        j.value<bool>("EnableDirichletNoise", EnableDirichletNoise);
+    DirichletNoiseAlpha =
+        j.value<float>("DirichletNoiseAlpha", DirichletNoiseAlpha);
+    DirichletNoiseEps = j.value<float>("DirichletNoiseEps", DirichletNoiseEps);
 
     MaxSimulations = j.value<int>("MaxSimulations", MaxSimulations);
 }

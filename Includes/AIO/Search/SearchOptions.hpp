@@ -7,12 +7,20 @@ namespace AIO::Search
 {
 struct SearchOptions final
 {
+    std::string WeightFileName{ "" };
+
+    int NumEvalThreads{ 1 };
     int NumSearchThreads{ 1 };
+    int BatchSize{ 1 };
 
     float VirtualLoss{ 0 };
     float cPUCT{ 1.8f };
 
     int MaxSimulations{ 100 };
+
+    bool EnableDirichletNoise{ false };
+    float DirichletNoiseAlpha{ 0.03f };
+    float DirichletNoiseEps{ 0.75f };
 
     void Load(const std::string_view& filename);
 };
