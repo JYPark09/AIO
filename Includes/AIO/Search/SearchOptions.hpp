@@ -2,12 +2,14 @@
 #define AIO_SEARCH_OPTIONS_HPP
 
 #include <string>
+#include <vector>
 
 namespace AIO::Search
 {
 struct SearchOptions final
 {
     std::string WeightFileName{ "" };
+    std::vector<int> Gpus;
 
     int NumEvalThreads{ 1 };
     int NumSearchThreads{ 1 };

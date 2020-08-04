@@ -27,6 +27,7 @@ if (BUILD_WITH_TRT)
     include(CMake/FindTensorRT.cmake)
 
     if (TensorRT_FOUND)
+        message("use TensorRT")
         add_compile_definitions(BUILD_WITH_TRT)
 
         find_package(CUDA REQUIRED)

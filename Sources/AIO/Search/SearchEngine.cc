@@ -2,6 +2,7 @@
 #include <AIO/Search/SearchEngine.hpp>
 
 #include <AIO/Network/FakeNetwork.hpp>
+#include <AIO/Network/TrtNetwork.hpp>
 #include <AIO/Utils/Utils.hpp>
 
 #include <effolkronium/random.hpp>
@@ -17,12 +18,19 @@ namespace AIO::Search
 SearchEngine::SearchEngine(SearchOptions option)
     : option_(option), manager_(option.NumSearchThreads)
 {
+    const std::size_t numOfGpus = option.Gpus.size();
+
     networkBarrier_.Init(option_.NumEvalThreads);
     for (int threadId = 0; threadId < option_.NumEvalThreads; ++threadId)
     {
         std::unique_ptr<Network::Network> network;
 
+#ifdef BUILD_WITH_TRT
+        network = std::make_unique<Network::TrtNetwork>(
+            option, option.Gpus[threadId % numOfGpus]);
+#else
         network = std::make_unique<Network::FakeNetwork>();
+#endif
 
         evalThreads_.emplace_back(&SearchEngine::evalThread, this, threadId,
                                   std::move(network));

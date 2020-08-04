@@ -16,6 +16,7 @@ void SearchOptions::Load(const std::string_view& filename)
 
     // Fill data
     WeightFileName = j["WeightFileName"].get<std::string>();
+    Gpus = j.value<std::vector<int>>("Gpus", Gpus);
 
     NumEvalThreads = j.value<int>("NumEvalThreads", NumEvalThreads);
     NumSearchThreads = j.value<int>("NumSearchThreads", NumSearchThreads);
