@@ -15,7 +15,7 @@ void SearchOptions::Load(const std::string_view& filename)
     file >> j;
 
     // Fill data
-    WeightFileName = j.value<std::string>("WeightFileName", WeightFileName);
+    WeightFileName = j.get<std::string>("WeightFileName");
 
     NumEvalThreads = j.value<int>("NumEvalThreads", NumEvalThreads);
     NumSearchThreads = j.value<int>("NumSearchThreads", NumSearchThreads);
