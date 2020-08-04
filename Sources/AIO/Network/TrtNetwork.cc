@@ -80,7 +80,7 @@ void TrtNetwork::Initialize(const std::string& weights)
 
     context_ = engine_->createExecutionContext();
 
-    int batchSize = engine_->getMaxBatchSize();
+    const int batchSize = engine_->getMaxBatchSize();
     for (int i = 0; i < engine_->getNbBindings(); ++i)
     {
         const auto dim = engine_->getBindingDimensions(i);
