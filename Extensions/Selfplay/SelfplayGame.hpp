@@ -9,6 +9,7 @@
 
 struct TrainingData
 {
+    AIO::Game::Point move;
     AIO::Network::Tensor state;
     std::vector<int> pi;
     float z;

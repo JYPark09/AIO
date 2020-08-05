@@ -58,7 +58,7 @@ bool Board::IsValid(Point pt, StoneColor color) const
         int d;
         for (d = 1;; ++d)
         {
-            if (board_[pt + dir * d] != opp || board_[pt + dir * d] == P_INVALID)
+            if (board_[pt + dir * d] != opp)
                 break;
         }
 
@@ -200,7 +200,7 @@ void Board::ShowBoard(std::ostream& out, bool showValid) const
         out << static_cast<char>('A' + i) << ' ';
     }
 
-    for (int y = BOARD_HEIGHT; y > 0; --y)
+    for (int y = 1; y <= BOARD_HEIGHT; ++y)
     {
         out << '\n' << std::setw(2) << y << ' ';
 
@@ -234,7 +234,7 @@ void Board::flipStones(Point pt, StoneColor color)
         int d;
         for (d = 1;; ++d)
         {
-            if (board_[pt + dir * d] != opp || board_[pt + dir * d] == P_INVALID)
+            if (board_[pt + dir * d] != opp)
                 break;
         }
 

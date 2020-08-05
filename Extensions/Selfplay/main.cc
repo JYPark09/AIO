@@ -2,10 +2,11 @@
 #include "SelfplayOptions.hpp"
 
 #include <atomic>
-#include <ctime>
 #include <csignal>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <numeric>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -66,12 +67,18 @@ int main()
                 fs::create_directories(dataDir);
                 const auto data = RunGame(opt);
 
+                std::ofstream giboFile(dataDir + "/gibo");
                 std::ofstream featFile(dataDir + "/feat");
                 std::ofstream probFile(dataDir + "/prob");
                 std::ofstream valFile(dataDir + "/val");
 
                 for (const auto& td : data)
                 {
+                    if (std::accumulate(td.pi.begin(), td.pi.end(), 0) == 0)
+                        continue;
+
+                    giboFile << Game::PointUtil::PointStr(td.move);
+
                     auto featEndIt = td.state.end();
                     auto probEndIt = td.pi.end();
                     auto valEndIt = td.z;
