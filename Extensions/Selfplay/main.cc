@@ -1,9 +1,12 @@
 #include "SelfplayGame.hpp"
 #include "SelfplayOptions.hpp"
 
+#include <atomic>
+#include <csignal>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <numeric>
 #include <sstream>
 #include <thread>
 #include <vector>
@@ -13,6 +16,16 @@
 using namespace AIO;
 
 namespace fs = std::filesystem;
+
+std::atomic<bool> running{ true };
+void signalHandler(int signal)
+{
+    if (signal == SIGINT || signal == SIGTERM)
+    {
+        spdlog::info("received stop signal");
+        running = false;
+    }
+}
 
 std::string makeDateStr()
 {
@@ -30,6 +43,9 @@ std::string makeDateStr()
 
 int main()
 {
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+
     SelfplayOptions opt;
     opt.Load("selfplay.json");
 
@@ -43,7 +59,7 @@ int main()
     for (int threadId = 0; threadId < opt.GameThreads; ++threadId)
     {
         gameThreads[threadId] = std::thread([&opt, threadId] {
-            while (true)
+            while (running.load())
             {
                 const std::string dataDir = opt.DataDir + "/" + makeDateStr() +
                                             "_" + std::to_string(threadId);
@@ -51,12 +67,18 @@ int main()
                 fs::create_directories(dataDir);
                 const auto data = RunGame(opt);
 
+                std::ofstream giboFile(dataDir + "/gibo");
                 std::ofstream featFile(dataDir + "/feat");
                 std::ofstream probFile(dataDir + "/prob");
                 std::ofstream valFile(dataDir + "/val");
 
                 for (const auto& td : data)
                 {
+                    if (std::accumulate(td.pi.begin(), td.pi.end(), 0) == 0)
+                        continue;
+
+                    giboFile << Game::PointUtil::PointStr(td.move);
+
                     auto featEndIt = td.state.end();
                     auto probEndIt = td.pi.end();
                     auto valEndIt = td.z;
@@ -78,4 +100,6 @@ int main()
     for (auto& thread : gameThreads)
         if (thread.joinable())
             thread.join();
+
+    spdlog::info("selfplay shutdown");
 }

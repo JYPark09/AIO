@@ -7,9 +7,11 @@ namespace AIO::Network
 {
 class FakeNetwork final : public Network
 {
-	void Initialize(const std::string& weightFileName) override;
+ public:
+    void Initialize(const std::string& weightFileName) override;
 
-	void Evaluate(const std::vector<Tensor>& inputs, std::vector<Tensor>& policy, Tensor& value) override;
+    void Evaluate(const std::vector<Tensor>& inputs,
+                  std::vector<Tensor>& policy, Tensor& value) override;
 };
 }  // namespace AIO::Network
 

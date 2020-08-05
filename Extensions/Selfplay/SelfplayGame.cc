@@ -33,16 +33,20 @@ std::vector<TrainingData> RunGame(const SelfplayOptions& opt)
         for (Search::TreeNode* child = root->mostLeftChildNode;
              child != nullptr; child = child->rightSiblingNode)
         {
+            if (child->action == Game::PASS)
+                break;
+
             data.pi[Game::PointUtil::UnextendedPt(child->action)] =
                 child->visits;
         }
-
-        gameData.emplace_back(data);
 
         const Game::Point bestMove = curPlayer.GetBestMove();
         blackEngine.Play(bestMove);
         whiteEngine.Play(bestMove);
         board.Play(bestMove);
+        data.move = bestMove;
+
+        gameData.emplace_back(data);
 
         ++turn;
     }

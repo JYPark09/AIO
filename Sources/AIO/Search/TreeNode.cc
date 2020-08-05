@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cfloat>
+#include <climits>
 #include <cmath>
 
 namespace AIO::Search
@@ -57,7 +59,7 @@ TreeNode* TreeNode::Select(const SearchOptions& opt) const
             const float p = tempNowNode->policy;
             const float v = tempNowNode->visits;
 
-            u = opt.cPUCT * p * std::sqrtf(totalParentVisits) / (1.f + v);
+            u = opt.cPUCT * p * std::sqrt(totalParentVisits) / (1.f + v);
         }
 
         const float value = Q + u;
@@ -85,37 +87,51 @@ void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
             return;
     }
 
+    const Game::StoneColor color = state.Current();
     auto moveList = state.ValidMoves();
 
-    float probSum = 1e-10f;
-    for (const auto move : moveList)
+    if (!moveList.empty())
     {
-        probSum += policy[Game::PointUtil::UnextendedPt(move)];
+        float probSum = 1e-10f;
+        for (const auto move : moveList)
+        {
+            probSum += policy[Game::PointUtil::UnextendedPt(move)];
+        }
+
+        std::sort(moveList.begin(), moveList.end(), [&policy](int a, int b) {
+            return policy[Game::PointUtil::UnextendedPt(a)] >
+                   policy[Game::PointUtil::UnextendedPt(b)];
+        });
+
+        TreeNode* nowNode = nullptr;
+        for (const auto move : moveList)
+        {
+            TreeNode* node = new TreeNode;
+            node->color = color;
+            node->action = move;
+            node->policy =
+                policy[Game::PointUtil::UnextendedPt(move)] / probSum;
+
+            if (nowNode == nullptr)
+                mostLeftChildNode = node;
+            else
+                nowNode->rightSiblingNode = node;
+
+            ++numChildren;
+            node->parentNode = this;
+            nowNode = node;
+        }
     }
-
-    std::sort(moveList.begin(), moveList.end(), [&policy](int a, int b) {
-        return policy[Game::PointUtil::UnextendedPt(a)] >
-               policy[Game::PointUtil::UnextendedPt(b)];
-    });
-
-    const Game::StoneColor color = state.Current();
-
-    TreeNode* nowNode = nullptr;
-    for (const auto move : moveList)
+    else
     {
         TreeNode* node = new TreeNode;
         node->color = color;
-        node->action = move;
-        node->policy = policy[Game::PointUtil::UnextendedPt(move)] / probSum;
-
-        if (nowNode == nullptr)
-            mostLeftChildNode = node;
-        else
-            nowNode->rightSiblingNode = node;
-
-        ++node->numChildren;
+        node->action = Game::PASS;
+        node->policy = 1.f;
         node->parentNode = this;
-        nowNode = node;
+
+        ++numChildren;
+        mostLeftChildNode = node;
     }
 
     this->state = ExpandState::EXPANDED;

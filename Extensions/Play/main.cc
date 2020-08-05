@@ -1,21 +1,59 @@
 #include <AIO/Search/SearchEngine.hpp>
 
 #include <iostream>
-#include <thread>
 
 using namespace AIO;
+
+using std::cin;
+using std::cout;
+using std::endl;
 
 int main()
 {
     using namespace std::chrono_literals;
 
     Search::SearchOptions option;
-    option.NumEvalThreads = 10;
-    option.NumSearchThreads = 10;
+    option.Load("play.json");
+
+    std::string str;
+
+    cout << "Input Computer Color: ";
+    std::getline(cin, str);
+    const Game::StoneColor comColor = Game::ColorUtil::Str2Color(str);
 
     Search::SearchEngine engine(option);
+    Game::Board board;
 
-    engine.Search();
+    const int notComFlag = (comColor == Game::P_BLACK ? 0 : 1);
+    int turn = 1;
+    while (!board.IsEnd())
+    {
+        cout << "Turn " << turn << endl;
+        board.ShowBoard(cout, turn % 2 == notComFlag);
 
-    engine.DumpStats();
+        Game::Point move;
+        if (turn % 2 == notComFlag)
+        {
+            cout << "Your move: ";
+            std::getline(cin, str);
+
+            move = Game::PointUtil::Str2Point(str);
+        }
+        else
+        {
+            engine.Search();
+            engine.DumpStats();
+
+            move = engine.GetBestMove();
+        }
+
+        board.Play(move);
+        engine.Play(move);
+
+        cout << endl;
+        ++turn;
+    }
+
+    cout << endl
+         << "Winner: " << Game::ColorUtil::ColorStr(board.GetWinner()) << endl;
 }

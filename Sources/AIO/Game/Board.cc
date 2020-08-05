@@ -1,5 +1,6 @@
 #include <AIO/Game/Board.hpp>
 
+#include <algorithm>
 #include <iomanip>
 #include <numeric>
 
@@ -26,10 +27,10 @@ void Board::Clear()
         At(EXTENDED_BOARD_WIDTH - 1, y) = P_INVALID;
     }
 
-    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2) = P_BLACK;
-    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2) = P_WHITE;
-    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 1) = P_WHITE;
-    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2 + 1) = P_BLACK;
+    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2) = P_WHITE;
+    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2) = P_BLACK;
+    At(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 1) = P_BLACK;
+    At(BOARD_WIDTH / 2 + 1, BOARD_HEIGHT / 2 + 1) = P_WHITE;
 
     current_ = P_BLACK;
 
@@ -132,20 +133,16 @@ std::vector<Point> Board::ValidMoves() const
 
 bool Board::IsEnd() const
 {
-    if (ValidMoves().empty())
+    if (isEnd_)
         return true;
 
-    const std::size_t emptyCount =
-        std::count(board_.begin(), board_.end(), P_NONE);
+    auto [black, white, empty] = calcTerritory();
 
-    return emptyCount == 0;
+    return (black == 0) || (white == 0) || (empty == 0);
 }
 
 StoneColor Board::GetWinner() const
 {
-    if (ValidMoves().empty())
-        return Opponent();
-
     auto [black, white, empty] = calcTerritory();
     if (empty > 0)
         return P_INVALID;
@@ -171,9 +168,19 @@ const std::vector<BoardPlane>& Board::GetPlaneHistory() const noexcept
 
 void Board::Play(Point pt)
 {
-    board_[pt] = current_;
+    if (pt != PASS)
+    {
+        board_[pt] = current_;
 
-    flipStones(pt, current_);
+        flipStones(pt, current_);
+    }
+    else
+    {
+        if (!history_.empty() && history_.back() == PASS)
+        {
+            isEnd_ = true;
+        }
+    }
 
     history_.emplace_back(pt);
     planeHistory_.push_back(board_);
@@ -193,7 +200,7 @@ void Board::ShowBoard(std::ostream& out, bool showValid) const
         out << static_cast<char>('A' + i) << ' ';
     }
 
-    for (int y = BOARD_HEIGHT; y > 0; --y)
+    for (int y = 1; y <= BOARD_HEIGHT; ++y)
     {
         out << '\n' << std::setw(2) << y << ' ';
 
