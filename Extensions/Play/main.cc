@@ -54,6 +54,17 @@ int main()
         ++turn;
     }
 
+    cout << "Gibo: ";
+
+    for (const auto p : board.GetHistory())
+    {
+        if (p == Game::PASS)
+            continue;
+
+        cout << Game::PointUtil::PointStr(p);
+    }
+    cout << '\n';
+
     cout << endl
          << "Winner: " << Game::ColorUtil::ColorStr(board.GetWinner()) << endl;
 }

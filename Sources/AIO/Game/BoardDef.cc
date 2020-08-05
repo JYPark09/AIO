@@ -50,6 +50,9 @@ namespace PointUtil
 {
 std::string PointStr(Point pt)
 {
+    if (pt == PASS)
+        return "PASS";
+
     auto [x, y] = Point2XY(pt);
 
     return PointStr(x, y);
