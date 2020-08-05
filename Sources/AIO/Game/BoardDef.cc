@@ -74,6 +74,9 @@ Point Str2Point(std::string str)
     std::transform(str.begin(), str.end(), str.begin(),
                    [](unsigned char c) { return std::toupper(c); });
 
+    if (str == "PASS")
+        return PASS;
+
     const int x = str[0] - 'A';
     const int y = std::stoi(str.substr((1)));
 
