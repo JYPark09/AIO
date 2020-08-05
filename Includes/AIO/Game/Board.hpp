@@ -33,7 +33,8 @@ class Board final
     [[nodiscard]] StoneColor GetWinner() const;
 
     [[nodiscard]] const std::vector<Point>& GetHistory() const noexcept;
-    [[nodiscard]]const std::vector<BoardPlane>& GetPlaneHistory() const noexcept;
+    [[nodiscard]] const std::vector<BoardPlane>& GetPlaneHistory()
+        const noexcept;
 
     void Play(Point pt);
     void Play(int x, int y);
@@ -51,6 +52,7 @@ class Board final
     BoardPlane board_;
     StoneColor current_{ P_INVALID };
 
+    bool isEnd_{ false };
     std::vector<Point> history_;
     std::vector<BoardPlane> planeHistory_;
 };

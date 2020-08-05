@@ -58,7 +58,7 @@ bool Board::IsValid(Point pt, StoneColor color) const
         int d;
         for (d = 1;; ++d)
         {
-            if (board_[pt + dir * d] != opp)
+            if (board_[pt + dir * d] != opp || board_[pt + dir * d] == P_INVALID)
                 break;
         }
 
@@ -133,20 +133,16 @@ std::vector<Point> Board::ValidMoves() const
 
 bool Board::IsEnd() const
 {
-    if (ValidMoves().empty())
+    if (isEnd_)
         return true;
 
-    const std::size_t emptyCount =
-        std::count(board_.begin(), board_.end(), P_NONE);
+    auto [black, white, empty] = calcTerritory();
 
-    return emptyCount == 0;
+    return (black == 0) || (white == 0) || (empty == 0);
 }
 
 StoneColor Board::GetWinner() const
 {
-    if (ValidMoves().empty())
-        return Opponent();
-
     auto [black, white, empty] = calcTerritory();
     if (empty > 0)
         return P_INVALID;
@@ -172,9 +168,19 @@ const std::vector<BoardPlane>& Board::GetPlaneHistory() const noexcept
 
 void Board::Play(Point pt)
 {
-    board_[pt] = current_;
+    if (pt != PASS)
+    {
+        board_[pt] = current_;
 
-    flipStones(pt, current_);
+        flipStones(pt, current_);
+    }
+    else
+    {
+        if (!history_.empty() && history_.back() == PASS)
+        {
+            isEnd_ = true;
+        }
+    }
 
     history_.emplace_back(pt);
     planeHistory_.push_back(board_);
@@ -228,7 +234,7 @@ void Board::flipStones(Point pt, StoneColor color)
         int d;
         for (d = 1;; ++d)
         {
-            if (board_[pt + dir * d] != opp)
+            if (board_[pt + dir * d] != opp || board_[pt + dir * d] == P_INVALID)
                 break;
         }
 
