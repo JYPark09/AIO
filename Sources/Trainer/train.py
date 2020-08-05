@@ -46,7 +46,7 @@ def train(network: ResNet, optimizer: optim.Optimizer, data_loader: torch_data.D
     running_pi_loss /= data_len
     running_value_loss /= data_len
 
-    return running_loss, running_pi_loss, running_value_loss
+    return running_loss, running_pi_loss, running_value_loss/2
 
 def main():
     parser = argparse.ArgumentParser(description='AIO trainer')
