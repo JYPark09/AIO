@@ -38,6 +38,7 @@ int main()
             std::getline(cin, str);
 
             move = Game::PointUtil::Str2Point(str);
+            engine.DumpStats();
         }
         else
         {

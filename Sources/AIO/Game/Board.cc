@@ -223,6 +223,9 @@ void Board::ShowBoard(std::ostream& out, bool showValid) const
     }
 
     out << "   " << ColorUtil::ColorStr(current_) << " to play\n";
+
+    const auto [black, white, empty] = calcTerritory();
+    out << "B: " << black << ", W: " << white << '\n';
 }
 
 void Board::flipStones(Point pt, StoneColor color)
