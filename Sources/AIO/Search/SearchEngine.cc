@@ -122,7 +122,8 @@ void SearchEngine::DumpStats() const
     std::sort(children.begin(), children.end(),
               [](TreeNode* a, TreeNode* b) { return a->visits > b->visits; });
 
-    std::cerr << "root value: " << -(root_->values / root_->visits) << '\n'
+    std::cerr << "root value: "
+              << (1.f + -(root_->values / root_->visits)) / 2.f << '\n'
               << "total simulation: " << numOfSimulations_ << '\n'
               << "root visits: " << root_->visits << '\n';
 
@@ -134,7 +135,7 @@ void SearchEngine::DumpStats() const
         std::cerr << std::right << std::setw(5)
                   << Game::PointUtil::PointStr(child->action)
                   << " : (N: " << child->visits
-                  << ") (Q: " << (child->values / child->visits)
+                  << ") (Q: " << ((1.f + child->values / child->visits) / 2.f)
                   << ") (P: " << child->policy << ") -> ";
 
         while (true)
