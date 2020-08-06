@@ -46,12 +46,15 @@ bool Board::IsOnBoard(Point pt) const
     return (x >= 0 && y >= 0) && (x < BOARD_WIDTH && y < BOARD_HEIGHT);
 }
 
-bool Board::IsValid(Point pt, StoneColor color) const
+bool Board::IsValid(Point pt) const
 {
-    if (board_[pt] != P_NONE)
+    if (pt == PASS)
+        return ValidMoves().empty();
+        
+    if (pt == INVALID_MOVE || board_[pt] != P_NONE)
         return false;
 
-    const StoneColor opp = ColorUtil::Opponent(color);
+    const StoneColor opp = Opponent();
 
     for (const auto dir : Dirs)
     {
@@ -62,7 +65,7 @@ bool Board::IsValid(Point pt, StoneColor color) const
                 break;
         }
 
-        if (d > 1 && board_[pt + dir * d] == color)
+        if (d > 1 && board_[pt + dir * d] == current_)
         {
             return true;
         }
@@ -123,7 +126,7 @@ std::vector<Point> Board::ValidMoves() const
         {
             const auto pt = PointUtil::XY2Point(x, y);
 
-            if (IsValid(pt, current_))
+            if (IsValid(pt))
                 ret.emplace_back(pt);
         }
     }
@@ -214,7 +217,7 @@ void Board::ShowBoard(std::ostream& out, bool showValid) const
                 out << "W ";
             else
             {
-                if (showValid && IsValid(PointUtil::XY2Point(x, y), current_))
+                if (showValid && IsValid(PointUtil::XY2Point(x, y)))
                     out << "X ";
                 else
                     out << "  ";

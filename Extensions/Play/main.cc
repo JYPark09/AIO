@@ -38,6 +38,21 @@ int main()
             std::getline(cin, str);
 
             move = Game::PointUtil::Str2Point(str);
+
+            if (!board.IsValid(move))
+                move = Game::INVALID_MOVE;
+
+            while (move == Game::INVALID_MOVE)
+            {
+                cout << "Your move: ";
+                std::getline(cin, str);
+
+                move = Game::PointUtil::Str2Point(str);
+
+                if (!board.IsValid(move))
+                    move = Game::INVALID_MOVE;
+            }
+
             engine.DumpStats();
         }
         else

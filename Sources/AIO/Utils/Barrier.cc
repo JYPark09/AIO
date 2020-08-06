@@ -4,6 +4,8 @@ namespace AIO::Utils
 {
 void Barrier::Init(std::size_t count)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
+
     count_ = count;
 }
 
@@ -13,9 +15,12 @@ void Barrier::Done()
         std::lock_guard<std::mutex> lock(mutex_);
 
         --count_;
+        if (count_ < 0)
+            throw std::runtime_error("counter cannot be nagative");
     }
 
-    cv_.notify_all();
+    if (count_ == 0)
+        cv_.notify_all();
 }
 
 void Barrier::Wait()

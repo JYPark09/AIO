@@ -74,16 +74,23 @@ Point Str2Point(std::string str)
 {
     using namespace std::string_literals;
 
-    std::transform(str.begin(), str.end(), str.begin(),
-                   [](unsigned char c) { return std::toupper(c); });
+    try
+    {
+        std::transform(str.begin(), str.end(), str.begin(),
+                    [](unsigned char c) { return std::toupper(c); });
 
-    if (str == "PASS")
-        return PASS;
+        if (str == "PASS")
+            return PASS;
 
-    const int x = str[0] - 'A';
-    const int y = std::stoi(str.substr((1)));
+        const int x = str[0] - 'A';
+        const int y = std::stoi(str.substr((1)));
 
-    return XY2Point(x + 1, y);
+        return XY2Point(x + 1, y);
+    }
+    catch (...)
+    {
+        return INVALID_MOVE;
+    }
 }
 }  // namespace PointUtil
 }  // namespace AIO::Game
