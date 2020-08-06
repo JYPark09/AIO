@@ -37,6 +37,19 @@ int main()
             cout << "Your move: ";
             std::getline(cin, str);
 
+            if (str == "undo")
+            {
+                board.Undo();
+                board.Undo();
+                engine.Undo();
+                engine.Undo();
+
+                turn -= 2;
+                cout << endl;
+
+                continue;
+            }
+
             move = Game::PointUtil::Str2Point(str);
 
             if (!board.IsValid(move))

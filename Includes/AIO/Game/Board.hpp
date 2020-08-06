@@ -38,6 +38,7 @@ class Board final
 
     void Play(Point pt);
     void Play(int x, int y);
+    void Undo();
 
     void ShowBoard(std::ostream& out, bool showValid = false) const;
 

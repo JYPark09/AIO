@@ -50,7 +50,7 @@ bool Board::IsValid(Point pt) const
 {
     if (pt == PASS)
         return ValidMoves().empty();
-        
+
     if (pt == INVALID_MOVE || board_[pt] != P_NONE)
         return false;
 
@@ -193,6 +193,19 @@ void Board::Play(Point pt)
 void Board::Play(int x, int y)
 {
     Play(PointUtil::XY2Point(x, y));
+}
+
+void Board::Undo()
+{
+    if (history_.empty())
+        return;
+
+    board_ = std::move(*(planeHistory_.end() - 2));
+    planeHistory_.erase(planeHistory_.end() - 1);
+    history_.erase(history_.end() - 1);
+    isEnd_ = false;
+
+    current_ = ColorUtil::Opponent(current_);
 }
 
 void Board::ShowBoard(std::ostream& out, bool showValid) const

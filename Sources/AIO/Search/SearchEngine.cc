@@ -110,6 +110,15 @@ void SearchEngine::Play(Game::Point pt)
     updateRoot(newRoot);
 }
 
+void SearchEngine::Undo()
+{
+    pauseSearch();
+
+    mainBoard_.Undo();
+
+    updateRoot(nullptr);
+}
+
 void SearchEngine::DumpStats() const
 {
     std::vector<TreeNode*> children;
