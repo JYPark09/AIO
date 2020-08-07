@@ -16,12 +16,12 @@ void SearchManager::Pause()
     }
 
     cv_.notify_all();
-    pauseBarrier_.Wait();
+    pauseGroup_.Wait();
 }
 
 void SearchManager::AckPause()
 {
-    pauseBarrier_.Done();
+    pauseGroup_.Done();
 }
 
 void SearchManager::Resume()
@@ -34,7 +34,7 @@ void SearchManager::Resume()
 
         state_ = SearchState::SEARCHING;
 
-        pauseBarrier_.Init(threadNum_);
+        pauseGroup_.Add(threadNum_);
     }
 
     cv_.notify_all();
