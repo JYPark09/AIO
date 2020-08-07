@@ -110,6 +110,15 @@ void SearchEngine::Play(Game::Point pt)
     updateRoot(newRoot);
 }
 
+void SearchEngine::Undo()
+{
+    pauseSearch();
+
+    mainBoard_.Undo();
+
+    updateRoot(nullptr);
+}
+
 void SearchEngine::DumpStats() const
 {
     std::vector<TreeNode*> children;
@@ -122,7 +131,8 @@ void SearchEngine::DumpStats() const
     std::sort(children.begin(), children.end(),
               [](TreeNode* a, TreeNode* b) { return a->visits > b->visits; });
 
-    std::cerr << "root value: " << (root_->values / root_->visits) << '\n'
+    std::cerr << "root value: "
+              << (1.f + -(root_->values / root_->visits)) / 2.f << '\n'
               << "total simulation: " << numOfSimulations_ << '\n'
               << "root visits: " << root_->visits << '\n';
 
@@ -134,7 +144,7 @@ void SearchEngine::DumpStats() const
         std::cerr << std::right << std::setw(5)
                   << Game::PointUtil::PointStr(child->action)
                   << " : (N: " << child->visits
-                  << ") (Q: " << (child->values / child->visits)
+                  << ") (Q: " << ((1.f + child->values / child->visits) / 2.f)
                   << ") (P: " << child->policy << ") -> ";
 
         while (true)
@@ -222,7 +232,7 @@ void SearchEngine::initRoot()
         std::array<float, Game::BOARD_SIZE> noise;
 
         for (std::size_t i = 0; i < Game::BOARD_SIZE; ++i)
-            noise[i] = effolkronium::random_static::get(dist);
+            noise[i] = effolkronium::random_thread_local::get(dist);
 
         const float noiseSum = std::accumulate(
             noise.begin(), noise.begin() + root_->numChildren, 1e-10f);
@@ -399,6 +409,7 @@ void SearchEngine::searchThread(int threadId)
         {
             Network::Tensor policy;
             evaluate(bd, policy, valueToUpdate);
+			valueToUpdate *= -1;
 
             tempNowNode->Expand(bd, policy);
         }

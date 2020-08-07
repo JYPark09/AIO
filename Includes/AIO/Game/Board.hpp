@@ -19,7 +19,7 @@ class Board final
     void Clear();
 
     [[nodiscard]] bool IsOnBoard(Point pt) const;
-    [[nodiscard]] bool IsValid(Point pt, StoneColor color) const;
+    [[nodiscard]] bool IsValid(Point pt) const;
 
     [[nodiscard]] std::size_t MoveNum() const noexcept;
     [[nodiscard]] StoneColor At(Point pt) const;
@@ -38,6 +38,7 @@ class Board final
 
     void Play(Point pt);
     void Play(int x, int y);
+    void Undo();
 
     void ShowBoard(std::ostream& out, bool showValid = false) const;
 

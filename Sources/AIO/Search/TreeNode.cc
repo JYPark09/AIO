@@ -28,6 +28,9 @@ TreeNode::TreeNode(TreeNode&& other) noexcept
 
 TreeNode* TreeNode::Select(const SearchOptions& opt) const
 {
+    while (state.load() == ExpandState::EXPANDING)
+        ;
+
     assert(mostLeftChildNode != nullptr);
 
     float totalParentVisits = 0;
@@ -78,9 +81,6 @@ TreeNode* TreeNode::Select(const SearchOptions& opt) const
 void TreeNode::Expand(const Game::Board& state, const Network::Tensor& policy)
 {
     {
-        if (this->state != ExpandState::UNEXPANDED)
-            return;
-
         ExpandState expected = ExpandState::UNEXPANDED;
         if (!this->state.compare_exchange_weak(expected,
                                                ExpandState::EXPANDING))

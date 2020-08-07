@@ -3,8 +3,8 @@
 
 #include <AIO/Game/Board.hpp>
 #include <AIO/Network/Network.hpp>
-#include <AIO/Search/SearchOptions.hpp>
 #include <AIO/Search/SearchManager.hpp>
+#include <AIO/Search/SearchOptions.hpp>
 #include <AIO/Search/TreeNode.hpp>
 #include <AIO/Utils/Barrier.hpp>
 
@@ -33,6 +33,7 @@ class SearchEngine final
 
     void Search();
     void Play(Game::Point pt);
+    void Undo();
     void DumpStats() const;
 
     [[nodiscard]] Game::Point GetBestMove() const;

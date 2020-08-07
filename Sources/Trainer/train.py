@@ -20,7 +20,9 @@ def train(network: ResNet, optimizer: optim.Optimizer, data_loader: torch_data.D
 
     mse_loss = nn.MSELoss()
 
-    for state, pi, value in data_loader:
+    batch_len = len(data_loader)
+
+    for batch_idx, (state, pi, value) in enumerate(data_loader, 1):
         state = Variable(state).to(device)
         pi = Variable(pi).to(device)
         value = Variable(value).to(device)
@@ -29,7 +31,7 @@ def train(network: ResNet, optimizer: optim.Optimizer, data_loader: torch_data.D
 
         pred_pi, pred_value = network(state)
 
-        pi_loss = torch.mean(-pi * pred_pi)
+        pi_loss = torch.sum(-pi * (1e-8 + pred_pi), dim=1).mean()
         v_loss = mse_loss(pred_value, value)
 
         loss = pi_loss + v_loss
@@ -40,6 +42,10 @@ def train(network: ResNet, optimizer: optim.Optimizer, data_loader: torch_data.D
         running_loss += loss.item()
         running_pi_loss += pi_loss.item()
         running_value_loss += v_loss.item()
+
+        if batch_idx % 10 == 9:
+            print('[iteration {}/{}] loss: {:.4f}, pi: {:.4f}, v: {:.4f}'.format(
+                batch_idx, batch_len, running_loss/batch_idx, running_pi_loss/batch_idx, running_value_loss/batch_idx/2))
 
     data_len = len(data_loader)
     running_loss /= data_len

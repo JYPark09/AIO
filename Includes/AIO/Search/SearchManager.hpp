@@ -2,6 +2,7 @@
 #define AIO_SEARCH_MANAGER_HPP
 
 #include <AIO/Utils/Barrier.hpp>
+#include <AIO/Utils/WaitGroup.hpp>
 
 #include <condition_variable>
 #include <mutex>
@@ -38,7 +39,8 @@ class SearchManager final
 
     SearchState state_{ SearchState::PAUSE };
 
-    Utils::Barrier pauseBarrier_;
+    Utils::WaitGroup resumeGroup_;
+    Utils::WaitGroup pauseGroup_;
 };
 }  // namespace AIO::Search
 

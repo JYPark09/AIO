@@ -14,6 +14,8 @@ int main()
 
     Search::SearchOptions option;
     option.Load("play.json");
+    
+    Search::SearchEngine engine(option);
 
     std::string str;
 
@@ -21,7 +23,6 @@ int main()
     std::getline(cin, str);
     const Game::StoneColor comColor = Game::ColorUtil::Str2Color(str);
 
-    Search::SearchEngine engine(option);
     Game::Board board;
 
     const int notComFlag = (comColor == Game::P_BLACK ? 0 : 1);
@@ -37,7 +38,36 @@ int main()
             cout << "Your move: ";
             std::getline(cin, str);
 
+            if (str == "undo")
+            {
+                board.Undo();
+                board.Undo();
+                engine.Undo();
+                engine.Undo();
+
+                turn -= 2;
+                cout << endl;
+
+                continue;
+            }
+
             move = Game::PointUtil::Str2Point(str);
+
+            if (!board.IsValid(move))
+                move = Game::INVALID_MOVE;
+
+            while (move == Game::INVALID_MOVE)
+            {
+                cout << "Your move: ";
+                std::getline(cin, str);
+
+                move = Game::PointUtil::Str2Point(str);
+
+                if (!board.IsValid(move))
+                    move = Game::INVALID_MOVE;
+            }
+
+            engine.DumpStats();
         }
         else
         {
@@ -53,6 +83,17 @@ int main()
         cout << endl;
         ++turn;
     }
+
+    cout << "Gibo: ";
+
+    for (const auto p : board.GetHistory())
+    {
+        if (p == Game::PASS)
+            continue;
+
+        cout << Game::PointUtil::PointStr(p);
+    }
+    cout << '\n';
 
     cout << endl
          << "Winner: " << Game::ColorUtil::ColorStr(board.GetWinner()) << endl;

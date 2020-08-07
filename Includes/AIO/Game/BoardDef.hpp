@@ -39,6 +39,7 @@ namespace ColorUtil
 
 using Point = int;
 constexpr Point PASS = EXTENDED_BOARD_SIZE;
+constexpr Point INVALID_MOVE = -1;
 constexpr std::array<int, 8> Dirs = {
     1,
     -static_cast<int>(EXTENDED_BOARD_WIDTH) + 1,

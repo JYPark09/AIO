@@ -9,19 +9,19 @@ SearchManager::SearchManager(std::size_t threadNum) : threadNum_(threadNum)
 
 void SearchManager::Pause()
 {
+    resumeGroup_.Wait();
+
     {
         std::lock_guard<std::mutex> lock(mutex_);
 
         state_ = SearchState::PAUSE;
     }
-
-    cv_.notify_all();
-    pauseBarrier_.Wait();
+    pauseGroup_.Wait();
 }
 
 void SearchManager::AckPause()
 {
-    pauseBarrier_.Done();
+    pauseGroup_.Done();
 }
 
 void SearchManager::Resume()
@@ -32,12 +32,14 @@ void SearchManager::Resume()
         if (state_ == SearchState::SEARCHING)
             return;
 
-        state_ = SearchState::SEARCHING;
+        resumeGroup_.Add(threadNum_);
+        pauseGroup_.Add(threadNum_);
 
-        pauseBarrier_.Init(threadNum_);
+        state_ = SearchState::SEARCHING;
     }
 
     cv_.notify_all();
+    resumeGroup_.Wait();
 }
 
 void SearchManager::Terminate()
@@ -55,13 +57,16 @@ void SearchManager::Terminate()
 
 bool SearchManager::WaitResume()
 {
-    std::unique_lock<std::mutex> lock(mutex_);
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
 
-    cv_.wait(lock, [this] { return state_ != SearchState::PAUSE; });
+        cv_.wait(lock, [this] { return state_ != SearchState::PAUSE; });
 
-    if (state_ == SearchState::TERMINATE)
-        return false;
-
+        if (state_ == SearchState::TERMINATE)
+            return false;
+    }
+    
+    resumeGroup_.Done();
     return true;
 }
 
