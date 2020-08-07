@@ -4,6 +4,8 @@ namespace AIO::Utils
 {
 void WaitGroup::Add(int incr)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
+
     counter_ += incr;
     if (counter_ <= 0)
         cv_.notify_all();

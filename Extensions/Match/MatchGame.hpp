@@ -10,8 +10,8 @@
 struct GameData final
 {
     std::vector<AIO::Game::Point> history;
-    AIO::Game::StoneColor winColor;
-    int winner;
+    AIO::Game::StoneColor winColor{ AIO::Game::P_INVALID };
+    int winner{ 0 };
 };
 
 GameData RunGame(const MatchOptions& opt, bool p1IsBlack);
