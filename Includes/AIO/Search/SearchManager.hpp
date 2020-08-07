@@ -39,6 +39,7 @@ class SearchManager final
 
     SearchState state_{ SearchState::PAUSE };
 
+    Utils::WaitGroup resumeGroup_;
     Utils::WaitGroup pauseGroup_;
 };
 }  // namespace AIO::Search

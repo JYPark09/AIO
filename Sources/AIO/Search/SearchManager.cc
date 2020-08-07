@@ -9,6 +9,8 @@ SearchManager::SearchManager(std::size_t threadNum) : threadNum_(threadNum)
 
 void SearchManager::Pause()
 {
+    resumeGroup_.Wait();
+
     {
         std::lock_guard<std::mutex> lock(mutex_);
 
@@ -34,10 +36,12 @@ void SearchManager::Resume()
 
         state_ = SearchState::SEARCHING;
 
+        resumeGroup_.Add(threadNum_);
         pauseGroup_.Add(threadNum_);
     }
 
     cv_.notify_all();
+    resumeGroup_.Wait();
 }
 
 void SearchManager::Terminate()
@@ -62,6 +66,7 @@ bool SearchManager::WaitResume()
     if (state_ == SearchState::TERMINATE)
         return false;
 
+    resumeGroup_.Done();
     return true;
 }
 

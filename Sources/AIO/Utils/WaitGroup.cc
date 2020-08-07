@@ -5,13 +5,13 @@ namespace AIO::Utils
 void WaitGroup::Add(int incr)
 {
     counter_ += incr;
+    if (counter_ <= 0)
+        cv_.notify_all();
 }
 
 void WaitGroup::Done()
 {
-    --counter_;
-    if (counter_ <= 0)
-        cv_.notify_all();
+    Add(-1);
 }
 
 void WaitGroup::Wait()
