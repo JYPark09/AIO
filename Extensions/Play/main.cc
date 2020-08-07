@@ -14,6 +14,8 @@ int main()
 
     Search::SearchOptions option;
     option.Load("play.json");
+    
+    Search::SearchEngine engine(option);
 
     std::string str;
 
@@ -21,7 +23,6 @@ int main()
     std::getline(cin, str);
     const Game::StoneColor comColor = Game::ColorUtil::Str2Color(str);
 
-    Search::SearchEngine engine(option);
     Game::Board board;
 
     const int notComFlag = (comColor == Game::P_BLACK ? 0 : 1);
