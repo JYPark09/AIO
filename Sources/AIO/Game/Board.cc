@@ -147,6 +147,12 @@ bool Board::IsEnd() const
 StoneColor Board::GetWinner() const
 {
     auto [black, white, empty] = calcTerritory();
+	if (white == 0)
+		return P_BLACK;
+
+	if (black == 0)
+		return P_WHITE;
+
     if (empty > 0)
         return P_INVALID;
 
